@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Student Record Management System | IT323</title>
+  <meta name="description" content="Student Record Management System for IT323 Midterm PIT – manage student records with CRUD operations, search, and filtering." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ========== HEADER / NAV ========== -->
+  <header class="site-header">
+    <nav class="navbar" aria-label="Main navigation">
+      <div class="nav-brand">
+        <span class="brand-icon">🎓</span>
+        <div class="brand-text">
+          <span class="brand-title">StudRec</span>
+          <span class="brand-sub">IT323 – Midterm PIT</span>
+        </div>
+      </div>
+      <ul class="nav-links" role="list">
+        <li><a href="#registration" class="nav-link" id="nav-register">Register</a></li>
+        <li><a href="#records" class="nav-link" id="nav-records">Records</a></li>
+      </ul>
+      <div class="nav-badge">
+        <span id="student-count-badge">0</span> Students
+      </div>
+    </nav>
+  </header>
+
+  <!-- ========== MAIN ========== -->
+  <main class="site-main">
+
+    <!-- HERO STRIP -->
+    <section class="hero-strip" aria-label="System overview">
+      <div class="hero-content">
+        <h1 class="hero-title">Student Record Management System</h1>
+        <p class="hero-subtitle">Add, search, update, and delete student records in real time.</p>
+      </div>
+      <div class="hero-stats" id="hero-stats">
+        <div class="stat-card" id="stat-total">
+          <span class="stat-number" id="stat-num-total">0</span>
+          <span class="stat-label">Total Students</span>
+        </div>
+        <div class="stat-card" id="stat-courses">
+          <span class="stat-number" id="stat-num-courses">0</span>
+          <span class="stat-label">Courses</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- REGISTRATION FORM -->
+    <section class="section-card" id="registration" aria-labelledby="form-heading">
+      <div class="section-header">
+        <h2 id="form-heading" class="section-title">
+          <span class="section-icon">📋</span>
+          <span id="form-title-label">Student Registration</span>
+        </h2>
+        <button class="btn btn-ghost" id="cancel-edit-btn" style="display:none;" type="button">✕ Cancel Edit</button>
+      </div>
+
+      <form id="student-form" class="student-form" novalidate>
+        <input type="hidden" id="student-id" value="" />
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label for="student-number" class="form-label">Student Number <span class="required">*</span></label>
+            <input type="text" id="student-number" name="student_number" class="form-input"
+              placeholder="e.g. 2024-00001" maxlength="20" required />
+            <span class="field-error" id="err-student-number"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="first-name" class="form-label">First Name <span class="required">*</span></label>
+            <input type="text" id="first-name" name="first_name" class="form-input"
+              placeholder="e.g. Juan" maxlength="100" required />
+            <span class="field-error" id="err-first-name"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="last-name" class="form-label">Last Name <span class="required">*</span></label>
+            <input type="text" id="last-name" name="last_name" class="form-input"
+              placeholder="e.g. Dela Cruz" maxlength="100" required />
+            <span class="field-error" id="err-last-name"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="course" class="form-label">Course <span class="required">*</span></label>
+            <select id="course" name="course" class="form-input" required>
+              <option value="">— Select Course —</option>
+              <option value="BSIT">BSIT</option>
+              <option value="BSCS">BSCS</option>
+              <option value="BSCE">BSCE</option>
+              <option value="BSEE">BSEE</option>
+              <option value="BSME">BSME</option>
+              <option value="BSN">BSN</option>
+              <option value="BSBA">BSBA</option>
+              <option value="BSED">BSED</option>
+              <option value="AB-COMM">AB-COMM</option>
+            </select>
+            <span class="field-error" id="err-course"></span>
+          </div>
+
+          <div class="form-group">
+            <label for="year-level" class="form-label">Year Level <span class="required">*</span></label>
+            <select id="year-level" name="year_level" class="form-input" required>
+              <option value="">— Select Year —</option>
+              <option value="1">1st Year</option>
+              <option value="2">2nd Year</option>
+              <option value="3">3rd Year</option>
+              <option value="4">4th Year</option>
+              <option value="5">5th Year</option>
+            </select>
+            <span class="field-error" id="err-year-level"></span>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="submit-btn">
+            <span class="btn-icon">＋</span> Register Student
+          </button>
+          <button type="reset" class="btn btn-secondary" id="reset-btn">Reset</button>
+        </div>
+
+        <div class="form-feedback" id="form-feedback" role="alert" aria-live="polite"></div>
+      </form>
+    </section>
+
+    <!-- RECORDS TABLE -->
+    <section class="section-card" id="records" aria-labelledby="records-heading">
+      <div class="section-header">
+        <h2 id="records-heading" class="section-title">
+          <span class="section-icon">📊</span> Student Records
+        </h2>
+      </div>
+
+      <!-- TOOLBAR: Search + Filter -->
+      <div class="toolbar">
+        <div class="search-wrapper">
+          <span class="search-icon" aria-hidden="true">🔍</span>
+          <input type="search" id="search-input" class="search-input"
+            placeholder="Search by name, number, or course…" aria-label="Search students" />
+          <button class="btn btn-sm btn-ghost" id="clear-search-btn" title="Clear search" aria-label="Clear search" style="display:none;">✕</button>
+        </div>
+
+        <div class="filter-wrapper">
+          <label for="filter-course" class="visually-hidden">Filter by Course</label>
+          <select id="filter-course" class="filter-select" aria-label="Filter by course">
+            <option value="all">All Courses</option>
+          </select>
+        </div>
+
+        <button class="btn btn-sm btn-outline" id="refresh-btn" title="Refresh table" aria-label="Refresh records">↻ Refresh</button>
+      </div>
+
+      <!-- TABLE WRAPPER -->
+      <div class="table-wrapper" role="region" aria-label="Student records table" tabindex="0">
+        <table class="records-table" id="records-table" aria-describedby="table-info">
+          <thead>
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">Student No.</th>
+              <th scope="col">Full Name</th>
+              <th scope="col">Course</th>
+              <th scope="col">Year</th>
+              <th scope="col">Date Added</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+            <tr class="loading-row">
+              <td colspan="7">
+                <div class="loading-spinner" aria-label="Loading…"></div>
+                Loading student records…
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-footer" id="table-footer">
+        <span id="table-info" aria-live="polite"></span>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========== FOOTER ========== -->
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-inner">
+      <p class="footer-copy">&copy; 2025 Student Record Management System &bull; IT323 – Midterm PIT</p>
+      <p class="footer-tech">Built with Node.js · Express · MySQL · Vanilla JS</p>
+    </div>
+  </footer>
+
+  <!-- Toast notification container -->
+  <div id="toast-container" aria-live="assertive" aria-atomic="true"></div>
+
+  <script src="js/script.js"></script>
+</body>
+</html>
