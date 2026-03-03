@@ -1,6 +1,16 @@
+require('dotenv').config();          // load .env before anything else reads process.env
+
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+
+// Only allow requests from the configured origin (defaults to localhost:3000).
+// Set CORS_ORIGIN in .env to override for staging / production deployments.
+const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000';
+const corsOptions = {
+  origin: CORS_ORIGIN,
+  optionsSuccessStatus: 200   // for legacy browser compatibility
+};
 
 const studentRoutes = require('./routes/students');
 
@@ -8,7 +18,7 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors());
+app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 

@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Student Record Management System | IT323</title>
-  <meta name="description" content="Student Record Management System for IT323 Midterm PIT – manage student records with CRUD operations, search, and filtering." />
+  <meta name="description"
+    content="Student Record Management System for IT323 Midterm PIT – manage student records with CRUD operations, search, and filtering." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
 </head>
+
 <body>
 
   <!-- ========== HEADER / NAV ========== -->
@@ -22,7 +25,13 @@
           <span class="brand-sub">IT323 – Midterm PIT</span>
         </div>
       </div>
-      <ul class="nav-links" role="list">
+      <button class="nav-toggle" id="nav-toggle" aria-label="Toggle navigation" aria-expanded="false"
+        aria-controls="nav-links-list">
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+        <span class="nav-toggle-bar"></span>
+      </button>
+      <ul class="nav-links" id="nav-links-list" role="list">
         <li><a href="#registration" class="nav-link" id="nav-register">Register</a></li>
         <li><a href="#records" class="nav-link" id="nav-records">Records</a></li>
       </ul>
@@ -76,15 +85,15 @@
 
           <div class="form-group">
             <label for="first-name" class="form-label">First Name <span class="required">*</span></label>
-            <input type="text" id="first-name" name="first_name" class="form-input"
-              placeholder="e.g. Juan" maxlength="100" required />
+            <input type="text" id="first-name" name="first_name" class="form-input" placeholder="e.g. Juan"
+              maxlength="100" required />
             <span class="field-error" id="err-first-name"></span>
           </div>
 
           <div class="form-group">
             <label for="last-name" class="form-label">Last Name <span class="required">*</span></label>
-            <input type="text" id="last-name" name="last_name" class="form-input"
-              placeholder="e.g. Dela Cruz" maxlength="100" required />
+            <input type="text" id="last-name" name="last_name" class="form-input" placeholder="e.g. Dela Cruz"
+              maxlength="100" required />
             <span class="field-error" id="err-last-name"></span>
           </div>
 
@@ -142,9 +151,10 @@
       <div class="toolbar">
         <div class="search-wrapper">
           <span class="search-icon" aria-hidden="true">🔍</span>
-          <input type="search" id="search-input" class="search-input"
-            placeholder="Search by name, number, or course…" aria-label="Search students" />
-          <button class="btn btn-sm btn-ghost" id="clear-search-btn" title="Clear search" aria-label="Clear search" style="display:none;">✕</button>
+          <input type="search" id="search-input" class="search-input" placeholder="Search by name, number, or course…"
+            aria-label="Search students" />
+          <button class="btn btn-sm btn-ghost" id="clear-search-btn" title="Clear search" aria-label="Clear search"
+            style="display:none;">✕</button>
         </div>
 
         <div class="filter-wrapper">
@@ -154,7 +164,8 @@
           </select>
         </div>
 
-        <button class="btn btn-sm btn-outline" id="refresh-btn" title="Refresh table" aria-label="Refresh records">↻ Refresh</button>
+        <button class="btn btn-sm btn-outline" id="refresh-btn" title="Refresh table" aria-label="Refresh records">↻
+          Refresh</button>
       </div>
 
       <!-- TABLE WRAPPER -->
@@ -202,4 +213,5 @@
 
   <script src="js/script.js"></script>
 </body>
+
 </html>

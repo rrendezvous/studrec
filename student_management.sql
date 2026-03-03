@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS students (
   first_name     VARCHAR(100) NOT NULL,
   last_name      VARCHAR(100) NOT NULL,
   course         VARCHAR(100) NOT NULL,
-  year_level     INT          NOT NULL CHECK (year_level BETWEEN 1 AND 6),
+  year_level     INT          NOT NULL CHECK (year_level BETWEEN 1 AND 5),
   created_at     TIMESTAMP    DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
@@ -40,28 +40,36 @@ INSERT INTO students (student_number, first_name, last_name, course, year_level)
   ('2024-00010', 'Roberto', 'Mendoza',   'BSCE', 3);
 
 -- ============================================================
--- QUERY EXAMPLES (for reference / documentation)
+-- DML QUERY DEMONSTRATIONS
+-- Run these after importing the schema + seed data above.
 -- ============================================================
 
--- SELECT all, ordered by last name ASC
--- SELECT * FROM students ORDER BY last_name ASC;
+-- SELECT all students, ordered by last name ASC
+SELECT * FROM students ORDER BY last_name ASC;
 
--- SELECT by ID (parameterized in application)
--- SELECT * FROM students WHERE id = ?;
+-- SELECT a single student by ID
+SELECT * FROM students WHERE id = 1;
 
--- SEARCH using LIKE (parameterized in application)
--- SELECT * FROM students
--- WHERE first_name LIKE ? OR last_name LIKE ? OR student_number LIKE ? OR course LIKE ?
--- ORDER BY last_name ASC;
+-- SEARCH using LIKE across multiple fields
+SELECT * FROM students
+WHERE first_name  LIKE '%an%'
+   OR last_name   LIKE '%an%'
+   OR student_number LIKE '%an%'
+   OR course      LIKE '%an%'
+ORDER BY last_name ASC;
 
--- INSERT (parameterized in application)
--- INSERT INTO students (student_number, first_name, last_name, course, year_level)
--- VALUES (?, ?, ?, ?, ?);
+-- INSERT a new student
+INSERT INTO students (student_number, first_name, last_name, course, year_level)
+VALUES ('2024-00011', 'Andrea', 'Flores', 'BSIT', 1);
 
--- UPDATE (parameterized in application)
--- UPDATE students
--- SET student_number=?, first_name=?, last_name=?, course=?, year_level=?
--- WHERE id=?;
+-- UPDATE an existing student record
+UPDATE students
+SET student_number = '2024-00011',
+    first_name     = 'Andrea',
+    last_name      = 'Flores',
+    course         = 'BSCS',
+    year_level     = 2
+WHERE id = 11;
 
--- DELETE (parameterized in application)
--- DELETE FROM students WHERE id=?;
+-- DELETE a student record
+DELETE FROM students WHERE id = 11;

@@ -2,6 +2,25 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
+// Pattern: 4-digit year, hyphen, 5-digit sequence  e.g. 2024-00001
+const STUDENT_NUMBER_REGEX = /^\d{4}-\d{5}$/;
+
+function validateStudentNumber(value) {
+    return STUDENT_NUMBER_REGEX.test(String(value).trim());
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Helper: parse & validate numeric IDs from URL params
+// ─────────────────────────────────────────────────────────────────────────────
+function parseId(req, res) {
+    const id = parseInt(req.params.id, 10);
+    if (isNaN(id) || id < 1) {
+        res.status(400).json({ success: false, message: 'Invalid ID: must be a positive integer.' });
+        return null;
+    }
+    return id;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // GET /api/students/search/:keyword  – must be defined BEFORE /:id
 // ─────────────────────────────────────────────────────────────────────────────
@@ -40,10 +59,12 @@ router.get('/', async (req, res) => {
 // GET /api/students/:id  – fetch single student
 // ─────────────────────────────────────────────────────────────────────────────
 router.get('/:id', async (req, res) => {
+    const id = parseId(req, res);
+    if (id === null) return;
     try {
         const [rows] = await db.execute(
             'SELECT * FROM students WHERE id = ?',
-            [req.params.id]
+            [id]
         );
         if (rows.length === 0) {
             return res.status(404).json({ success: false, message: 'Student not found.' });
@@ -69,9 +90,16 @@ router.post('/', async (req, res) => {
         });
     }
 
+    if (!validateStudentNumber(student_number)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid student_number format. Expected: YYYY-NNNNN (e.g. 2024-00001).'
+        });
+    }
+
     const yearInt = parseInt(year_level, 10);
-    if (isNaN(yearInt) || yearInt < 1 || yearInt > 6) {
-        return res.status(400).json({ success: false, message: 'year_level must be a number between 1 and 6.' });
+    if (isNaN(yearInt) || yearInt < 1 || yearInt > 5) {
+        return res.status(400).json({ success: false, message: 'year_level must be a number between 1 and 5.' });
     }
 
     try {
@@ -94,6 +122,9 @@ router.post('/', async (req, res) => {
 // PUT /api/students/:id  – update student
 // ─────────────────────────────────────────────────────────────────────────────
 router.put('/:id', async (req, res) => {
+    const id = parseId(req, res);
+    if (id === null) return;
+
     const { student_number, first_name, last_name, course, year_level } = req.body;
 
     if (!student_number || !first_name || !last_name || !course || !year_level) {
@@ -103,23 +134,30 @@ router.put('/:id', async (req, res) => {
         });
     }
 
+    if (!validateStudentNumber(student_number)) {
+        return res.status(400).json({
+            success: false,
+            message: 'Invalid student_number format. Expected: YYYY-NNNNN (e.g. 2024-00001).'
+        });
+    }
+
     const yearInt = parseInt(year_level, 10);
-    if (isNaN(yearInt) || yearInt < 1 || yearInt > 6) {
-        return res.status(400).json({ success: false, message: 'year_level must be a number between 1 and 6.' });
+    if (isNaN(yearInt) || yearInt < 1 || yearInt > 5) {
+        return res.status(400).json({ success: false, message: 'year_level must be a number between 1 and 5.' });
     }
 
     try {
-        const [check] = await db.execute('SELECT id FROM students WHERE id = ?', [req.params.id]);
+        const [check] = await db.execute('SELECT id FROM students WHERE id = ?', [id]);
         if (check.length === 0) {
             return res.status(404).json({ success: false, message: 'Student not found.' });
         }
 
         await db.execute(
             'UPDATE students SET student_number = ?, first_name = ?, last_name = ?, course = ?, year_level = ? WHERE id = ?',
-            [student_number.trim(), first_name.trim(), last_name.trim(), course.trim(), yearInt, req.params.id]
+            [student_number.trim(), first_name.trim(), last_name.trim(), course.trim(), yearInt, id]
         );
 
-        const [updated] = await db.execute('SELECT * FROM students WHERE id = ?', [req.params.id]);
+        const [updated] = await db.execute('SELECT * FROM students WHERE id = ?', [id]);
         res.status(200).json({ success: true, message: 'Student updated successfully.', data: updated[0] });
     } catch (err) {
         if (err.code === 'ER_DUP_ENTRY') {
@@ -134,13 +172,15 @@ router.put('/:id', async (req, res) => {
 // DELETE /api/students/:id  – delete student
 // ─────────────────────────────────────────────────────────────────────────────
 router.delete('/:id', async (req, res) => {
+    const id = parseId(req, res);
+    if (id === null) return;
     try {
-        const [check] = await db.execute('SELECT id FROM students WHERE id = ?', [req.params.id]);
+        const [check] = await db.execute('SELECT id FROM students WHERE id = ?', [id]);
         if (check.length === 0) {
             return res.status(404).json({ success: false, message: 'Student not found.' });
         }
 
-        await db.execute('DELETE FROM students WHERE id = ?', [req.params.id]);
+        await db.execute('DELETE FROM students WHERE id = ?', [id]);
         res.status(200).json({ success: true, message: 'Student deleted successfully.' });
     } catch (err) {
         console.error('Delete error:', err);

@@ -8,8 +8,13 @@
 
 const API = '/api/students';
 
+// Pattern: 4-digit year, hyphen, 5-digit sequence — e.g. 2024-00001
+// Must stay in sync with the backend regex in routes/students.js
+const STUDENT_NUMBER_REGEX = /^\d{4}-\d{5}$/;
+
 // ── State ────────────────────────────────────────────────────
-let allStudents = [];          // master copy of all fetched students
+let allStudents = [];        // master copy from last full fetch
+let activeStudents = [];     // current display list (search results OR allStudents)
 let editingId = null;        // id of student being edited (null = add mode)
 let searchDebounceTimer = null;
 
@@ -81,6 +86,9 @@ function validateForm() {
 
     if (!fStudentNumber.value.trim()) {
         setFieldError('student-number', 'err-student-number', 'Student number is required.');
+        valid = false;
+    } else if (!STUDENT_NUMBER_REGEX.test(fStudentNumber.value.trim())) {
+        setFieldError('student-number', 'err-student-number', 'Format must be YYYY-NNNNN (e.g. 2024-00001).');
         valid = false;
     }
     if (!fFirstName.value.trim()) {
@@ -164,12 +172,13 @@ function populateCourseFilter(students) {
 }
 
 // ── Apply client-side filter ──────────────────────────────────
+// Filters `activeStudents` so it composes with both full list AND search results.
 function applyFilter() {
     const course = filterCourse.value;
     if (course === 'all') {
-        renderTable(allStudents);
+        renderTable(activeStudents);
     } else {
-        renderTable(allStudents.filter(s => s.course === course));
+        renderTable(activeStudents.filter(s => s.course === course));
     }
 }
 
@@ -181,6 +190,7 @@ async function fetchAllStudents() {
         const json = await res.json();
         if (!res.ok) throw new Error(json.message || 'Server error');
         allStudents = json.data || [];
+        activeStudents = [...allStudents];   // reset active list to full set
         updateStats(allStudents);
         populateCourseFilter(allStudents);
         applyFilter();
@@ -204,8 +214,10 @@ async function searchStudents(keyword) {
         const res = await fetch(`${API}/search/${encodeURIComponent(keyword.trim())}`);
         const json = await res.json();
         if (!res.ok) throw new Error(json.message || 'Search failed');
-        renderTable(json.data || []);
-        tableInfo.textContent = `Search: "${escHtml(keyword)}" — ${(json.data || []).length} result(s)`;
+        activeStudents = json.data || [];   // update active list to search results
+        filterCourse.value = 'all';        // reset filter so it applies cleanly
+        applyFilter();                     // filter now works on search results
+        tableInfo.textContent = `Search: "${escHtml(keyword)}" — ${activeStudents.length} result(s)`;
     } catch (err) {
         console.error(err);
         showToast('Search failed: ' + err.message, 'error');
@@ -256,7 +268,9 @@ form.addEventListener('submit', async (e) => {
     };
 
     submitBtn.disabled = true;
-    submitBtn.textContent = editingId ? 'Updating…' : 'Registering…';
+    submitBtn.innerHTML = editingId
+        ? '<span class="btn-icon">💾</span> Updating…'
+        : '<span class="btn-icon">⏳</span> Registering…';
 
     try {
         let res, json;
@@ -383,6 +397,24 @@ refreshBtn.addEventListener('click', async () => {
 document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && editingId) resetFormToAddMode();
 });
+// ── Hamburger nav toggle ──────────────────────────────────
+const navToggle = document.getElementById('nav-toggle');
+const navbar = document.querySelector('.navbar');
+
+if (navToggle && navbar) {
+    navToggle.addEventListener('click', () => {
+        const isOpen = navbar.classList.toggle('nav-open');
+        navToggle.setAttribute('aria-expanded', isOpen);
+    });
+
+    // Close nav when a link is clicked (smooth UX on mobile)
+    document.querySelectorAll('.nav-link').forEach(link => {
+        link.addEventListener('click', () => {
+            navbar.classList.remove('nav-open');
+            navToggle.setAttribute('aria-expanded', 'false');
+        });
+    });
+}
 
 // ── Initial load ──────────────────────────────────────────────
 fetchAllStudents();
