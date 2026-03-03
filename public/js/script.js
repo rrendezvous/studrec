@@ -8,9 +8,9 @@
 
 const API = '/api/students';
 
-// Pattern: 4-digit year, hyphen, 5-digit sequence — e.g. 2024-00001
+// Pattern: exactly 10 consecutive digits — e.g. 2023300845
 // Must stay in sync with the backend regex in routes/students.js
-const STUDENT_NUMBER_REGEX = /^\d{4}-\d{5}$/;
+const STUDENT_NUMBER_REGEX = /^\d{10}$/;
 
 // ── State ────────────────────────────────────────────────────
 let allStudents = [];        // master copy from last full fetch
@@ -88,7 +88,7 @@ function validateForm() {
         setFieldError('student-number', 'err-student-number', 'Student number is required.');
         valid = false;
     } else if (!STUDENT_NUMBER_REGEX.test(fStudentNumber.value.trim())) {
-        setFieldError('student-number', 'err-student-number', 'Format must be YYYY-NNNNN (e.g. 2024-00001).');
+        setFieldError('student-number', 'err-student-number', 'Must be exactly 10 digits (e.g. 2023300845).');
         valid = false;
     }
     if (!fFirstName.value.trim()) {

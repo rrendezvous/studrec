@@ -28,16 +28,16 @@ CREATE TABLE IF NOT EXISTS students (
 -- SAMPLE DATA (optional seeding)
 -- ============================================================
 INSERT INTO students (student_number, first_name, last_name, course, year_level) VALUES
-  ('2024-00001', 'Maria',   'Santos',    'BSIT', 2),
-  ('2024-00002', 'Jose',    'Reyes',     'BSCS', 3),
-  ('2024-00003', 'Ana',     'Cruz',      'BSCE', 1),
-  ('2024-00004', 'Pedro',   'Garcia',    'BSIT', 4),
-  ('2024-00005', 'Luz',     'Bautista',  'BSN',  2),
-  ('2024-00006', 'Miguel',  'Torres',    'BSME', 3),
-  ('2024-00007', 'Elena',   'Aquino',    'BSBA', 1),
-  ('2024-00008', 'Carlos',  'Ramirez',   'BSIT', 2),
-  ('2024-00009', 'Sofia',   'Castillo',  'BSCS', 4),
-  ('2024-00010', 'Roberto', 'Mendoza',   'BSCE', 3);
+  ('2023300001', 'Maria',   'Santos',    'BSIT', 2),
+  ('2023300002', 'Jose',    'Reyes',     'BSCS', 3),
+  ('2023300003', 'Ana',     'Cruz',      'BSCE', 1),
+  ('2023300004', 'Pedro',   'Garcia',    'BSIT', 4),
+  ('2023300005', 'Luz',     'Bautista',  'BSN',  2),
+  ('2023300006', 'Miguel',  'Torres',    'BSME', 3),
+  ('2023300007', 'Elena',   'Aquino',    'BSBA', 1),
+  ('2023300008', 'Carlos',  'Ramirez',   'BSIT', 2),
+  ('2023300009', 'Sofia',   'Castillo',  'BSCS', 4),
+  ('2023300010', 'Roberto', 'Mendoza',   'BSCE', 3);
 
 -- ============================================================
 -- DML QUERY DEMONSTRATIONS
@@ -60,11 +60,11 @@ ORDER BY last_name ASC;
 
 -- INSERT a new student
 INSERT INTO students (student_number, first_name, last_name, course, year_level)
-VALUES ('2024-00011', 'Andrea', 'Flores', 'BSIT', 1);
+VALUES ('2023300011', 'Andrea', 'Flores', 'BSIT', 1);
 
 -- UPDATE an existing student record
 UPDATE students
-SET student_number = '2024-00011',
+SET student_number = '2023300011',
     first_name     = 'Andrea',
     last_name      = 'Flores',
     course         = 'BSCS',

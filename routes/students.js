@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
-// Pattern: 4-digit year, hyphen, 5-digit sequence  e.g. 2024-00001
-const STUDENT_NUMBER_REGEX = /^\d{4}-\d{5}$/;
+// Pattern: exactly 10 consecutive digits, e.g. 2023300845
+const STUDENT_NUMBER_REGEX = /^\d{10}$/;
 
 function validateStudentNumber(value) {
     return STUDENT_NUMBER_REGEX.test(String(value).trim());
@@ -93,7 +93,7 @@ router.post('/', async (req, res) => {
     if (!validateStudentNumber(student_number)) {
         return res.status(400).json({
             success: false,
-            message: 'Invalid student_number format. Expected: YYYY-NNNNN (e.g. 2024-00001).'
+            message: 'Invalid student_number format. Must be exactly 10 digits (e.g. 2023300845).'
         });
     }
 
