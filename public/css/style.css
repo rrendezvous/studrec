@@ -68,7 +68,9 @@
 
 html {
   scroll-behavior: smooth;
-  /* Do NOT put overflow-x:hidden here — it breaks position:sticky on .site-header */
+  /* overflow-x: hidden is safe here now that sticky header uses clip on site-header */
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 body {
@@ -287,9 +289,19 @@ img {
 
   /* CSS GRID — hero layout */
   display: grid;
-  grid-template-columns: 1fr auto;
+  /* minmax(0, ...) allows columns to shrink below content size on narrow viewports */
+  grid-template-columns: minmax(0, 1fr) minmax(0, auto);
   align-items: center;
   gap: 2rem;
+
+  /* FIX: allow this grid item to shrink to its track size */
+  min-width: 0;
+  max-width: 100%;
+}
+
+.hero-content {
+  min-width: 0;
+  /* FIX: allow content column to shrink in internal 1fr auto grid */
 }
 
 .hero-title {
@@ -311,6 +323,8 @@ img {
   gap: .875rem;
   flex-wrap: wrap;
   /* wrap to next line if viewport is too narrow */
+  min-width: 0;
+  /* FIX: allow the auto grid column to shrink */
 }
 
 .stat-card {
@@ -356,6 +370,9 @@ img {
   padding: 1.875rem 2.125rem;
   box-shadow: var(--shadow-sm);
   transition: box-shadow var(--trans-base);
+  /* FIX: allow this grid item to shrink to its 1fr track in site-main */
+  min-width: 0;
+  max-width: 100%;
 }
 
 .section-card:focus-within {
@@ -410,7 +427,8 @@ img {
 .form-grid {
   /* CSS GRID — form fields */
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  /* Reduced from 220px to 180px so grid collapses to 1 column earlier on narrow viewports */
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
   gap: 1rem;
 }
 
@@ -983,6 +1001,11 @@ img {
     min-height: var(--nav-h);
     padding: 0 1rem;
     gap: 0;
+    width: 100%;
+    /* ensure flex container never exceeds parent */
+    max-width: 100%;
+    overflow: hidden;
+    /* clip badge if it would overflow */
   }
 
   /* Brand: takes remaining space in row 1 */
@@ -1043,27 +1066,37 @@ img {
 
   /* ── Hero ────────────────────────────────────────────────── */
   .hero-strip {
-    grid-template-columns: 1fr;
+    grid-template-columns: 1fr !important;
     gap: 1rem;
     padding: 1.25rem 1.125rem;
+    max-width: 100%;
+    overflow: hidden;
+    min-width: 0;
   }
 
   .hero-content {
     overflow-wrap: break-word;
     word-break: break-word;
     min-width: 0;
+    /* allow grid cell to shrink below content size */
+    width: 100%;
+    max-width: 100%;
   }
 
-  /* Stat cards: grid so they share space perfectly without overflow */
+  /* Stat cards: 2-column grid, share space perfectly */
   .hero-stats {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
     gap: .625rem;
+    width: 100%;
+    min-width: 0;
+    max-width: 100%;
   }
 
   .stat-card {
     flex: unset;
     min-width: 0;
+    max-width: 100%;
     padding: .75rem 1rem;
   }
 
@@ -1140,35 +1173,56 @@ img {
   }
 
   /* ── Table ───────────────────────────────────────────────── */
-  /*  Strategy: horizontal scroll with visible scroll hint
-      (preserves all columns, minimal HTML change) */
+  /*  Strategy: horizontal scroll inside wrapper; page itself does not scroll */
   .table-wrapper {
-    /* Thin scroll indicator on bottom edge so users know it scrolls */
     scrollbar-width: thin;
     scrollbar-color: var(--clr-border) transparent;
+    /* Ensure wrapper fills full card width */
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  /* Section card that contains the table: reduce horizontal padding so table
+     gets the maximum available width on small screens */
+  #records {
+    padding-left: .5rem;
+    padding-right: .5rem;
+  }
+
+  /* Section header inside records card: restore readable indent */
+  #records .section-header {
+    padding-left: .5rem;
+    padding-right: .5rem;
+  }
+
+  /* Toolbar inside records card */
+  #records .toolbar {
+    padding-left: .5rem;
+    padding-right: .5rem;
   }
 
   .records-table {
-    /* Prevent table from collapsing narrower than its content */
-    min-width: 560px;
+    /* At 768px: table is 560px. Reduce to 420px so less scrolling is needed */
+    min-width: 420px;
   }
 
   .records-table th,
   .records-table td {
-    padding: .625rem .75rem;
+    padding: .5rem .625rem;
     font-size: .8rem;
   }
 
   /* Action buttons: taller for touch, side by side */
   .btn-edit,
   .btn-del {
-    padding: .45rem .7rem;
-    font-size: .75rem;
-    min-height: 34px;
+    padding: .4rem .55rem;
+    font-size: .72rem;
+    min-height: 32px;
   }
 
   .action-cell {
-    gap: .3rem;
+    gap: .25rem;
     flex-wrap: nowrap;
   }
 
@@ -1191,24 +1245,45 @@ img {
     display: none;
   }
 
-  /* Hide "Date Added" column — least critical info on mobile.
-     Keeps #, Student No., Full Name, Course, Year, Actions visible. */
+  /* Hide "Date Added" column — least critical info on mobile. */
   .records-table th:nth-child(6),
   .records-table td:nth-child(6) {
     display: none;
   }
 
-  /* Tighten table min-width now that a column is removed.
-     6 columns: # + Student No. + Full Name + Course + Year + Actions */
-  .records-table {
-    min-width: 380px;
+  /* Hide row-number column (#) — wastes ~36px on mobile; row order is still
+     implied by visual sequence. This frees up real estate for data columns. */
+  .records-table th:nth-child(1),
+  .records-table td:nth-child(1) {
+    display: none;
   }
 
-  /* Constrain Student No. column to prevent it from eating too much space */
+  /* Now 5 columns: Student No. + Full Name + Course + Year + Actions.
+     Set a tighter min-width that still prevents awkward wrapping. */
+  .records-table {
+    min-width: 320px;
+  }
+
+  /* Constrain Student No. column so it doesn’t eat into name column */
   .records-table th:nth-child(2),
   .records-table td:nth-child(2) {
-    min-width: 90px;
-    max-width: 110px;
+    min-width: 80px;
+    max-width: 100px;
+    font-size: .75rem;
+  }
+
+  /* Allow full name to wrap naturally rather than forcing width */
+  .records-table th:nth-child(3),
+  .records-table td:nth-child(3) {
+    min-width: 80px;
+  }
+
+  /* Compact action buttons — icon only feel */
+  .btn-edit,
+  .btn-del {
+    padding: .35rem .5rem;
+    font-size: .7rem;
+    min-height: 30px;
   }
 }
 
@@ -1217,8 +1292,22 @@ img {
    ============================================================ */
 @media (max-width: 480px) {
 
+  /* Belt-and-suspenders: force single column form at all narrow widths */
+  .form-grid {
+    grid-template-columns: 1fr !important;
+    gap: .75rem;
+  }
+
+  /* Ensure hero stats don't create overflow on very narrow phones */
+  .hero-stats {
+    grid-template-columns: repeat(2, 1fr);
+    width: 100%;
+    min-width: 0;
+  }
+
   .site-main {
-    padding: .875rem .75rem 2.5rem;
+    /* Reduce side padding at 480px so cards use more of the 390px viewport */
+    padding: .875rem .375rem 2.5rem;
     gap: .875rem;
   }
 
@@ -1243,10 +1332,76 @@ img {
     padding: 1rem .875rem;
   }
 
+  /* Records section: zero-out horizontal card padding so table fills card edge-to-edge */
+  #records {
+    padding-left: .25rem;
+    padding-right: .25rem;
+  }
+
+  /* Records section header/toolbar need a bit of indent to stay readable */
+  #records .section-header,
+  #records .toolbar,
+  #records .table-footer {
+    padding-left: .625rem;
+    padding-right: .625rem;
+  }
+
+  /* Hide Year column at 480px — 4 columns remain: Student No, Full Name, Course, Actions */
+  .records-table th:nth-child(5),
+  .records-table td:nth-child(5) {
+    display: none;
+  }
+
+  /* 4 columns now; minimum width can be very compact */
+  .records-table {
+    min-width: 260px;
+  }
+
   .records-table th,
   .records-table td {
-    padding: .5rem .625rem;
-    font-size: .78rem;
+    padding: .375rem .4rem;
+    font-size: .75rem;
+  }
+
+  /* Student No. data cells: truncate long numbers with ellipsis */
+  .records-table td:nth-child(2) {
+    max-width: 90px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: .7rem;
+  }
+
+  /* Student No. header: let it size naturally (no truncation on labels) */
+  .records-table th:nth-child(2) {
+    white-space: nowrap;
+    font-size: .68rem;
+  }
+
+  /* Course chip: tighter */
+  .records-table th:nth-child(3),
+  .records-table td:nth-child(3) {
+    white-space: nowrap;
+  }
+
+  /* Actions: chip-style — tightest possible while still tappable */
+  .btn-edit,
+  .btn-del {
+    padding: .3rem .55rem;
+    font-size: .7rem;
+    min-height: 28px;
+    gap: .2rem;
+    width: 100%;
+    /* fill column width when stacked */
+    justify-content: center;
+  }
+
+  /* Stack Edit / Del vertically — removes horizontal squeeze */
+  .action-cell {
+    flex-direction: column;
+    align-items: stretch;
+    gap: .25rem;
+    flex-wrap: nowrap;
   }
 
   .table-footer {
