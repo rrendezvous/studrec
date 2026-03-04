@@ -137,7 +137,7 @@ router.put('/:id', async (req, res) => {
     if (!validateStudentNumber(student_number)) {
         return res.status(400).json({
             success: false,
-            message: 'Invalid student_number format. Expected: YYYY-NNNNN (e.g. 2024-00001).'
+            message: 'Invalid student_number format. Must be exactly 10 digits (e.g. 2023300845).'
         });
     }
 

@@ -33,7 +33,7 @@ const formTitleLabel = document.getElementById('form-title-label');
 
 const tableBody = document.getElementById('table-body');
 const tableInfo = document.getElementById('table-info');
-const badgeCount = document.getElementById('student-count-badge');
+const recordsHeading = document.getElementById('records-heading');
 const statNumTotal = document.getElementById('stat-num-total');
 const statNumCourses = document.getElementById('stat-num-courses');
 
@@ -49,7 +49,12 @@ function showToast(message, type = 'info') {
     const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
     const toast = document.createElement('div');
     toast.className = `toast ${type}`;
-    toast.innerHTML = `<span>${icons[type] || 'ℹ️'}</span><span>${message}</span>`;
+    const iconSpan = document.createElement('span');
+    iconSpan.textContent = icons[type] || 'ℹ️';
+    const msgSpan = document.createElement('span');
+    msgSpan.textContent = message;
+    toast.appendChild(iconSpan);
+    toast.appendChild(msgSpan);
     toastContainer.appendChild(toast);
     setTimeout(() => toast.remove(), 3200);
 }
@@ -158,9 +163,12 @@ function escHtml(str) {
 function updateStats(students) {
     const total = students.length;
     const courses = new Set(students.map(s => s.course)).size;
-    badgeCount.textContent = total;
     statNumTotal.textContent = total;
     statNumCourses.textContent = courses;
+    // Update Student Records heading with live count
+    if (recordsHeading) {
+        recordsHeading.innerHTML = '<span class="section-icon">📊</span> Student Records <span class="records-count">' + total + '</span>';
+    }
 }
 
 // ── Populate Course Filter dropdown ──────────────────────────

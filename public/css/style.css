@@ -200,17 +200,7 @@ img {
   background: var(--clr-surface2);
 }
 
-.nav-badge {
-  background: var(--clr-primary-lt);
-  color: var(--clr-primary);
-  font-size: .72rem;
-  font-weight: 600;
-  padding: .25rem .7rem;
-  border-radius: 99px;
-  white-space: nowrap;
-  flex-shrink: 0;
-  border: 1px solid rgba(74, 111, 165, .18);
-}
+
 
 /* Hamburger toggle — hidden on desktop */
 .nav-toggle {
@@ -413,6 +403,21 @@ img {
 
 .section-icon {
   font-size: 1rem;
+}
+
+/* Inline count in section heading, e.g. "Student Records (11)" */
+.records-count {
+  display: inline-flex;
+  align-items: center;
+  background: var(--clr-primary-lt);
+  color: var(--clr-primary);
+  font-size: .72rem;
+  font-weight: 600;
+  padding: .15rem .55rem;
+  border-radius: 99px;
+  border: 1px solid rgba(74, 111, 165, .18);
+  margin-left: .25rem;
+  vertical-align: middle;
 }
 
 /* ============================================================
@@ -1015,13 +1020,7 @@ img {
     padding: .625rem 0;
   }
 
-  /* Badge: compact pill, sits right of brand */
-  .nav-badge {
-    flex-shrink: 0;
-    margin-left: auto;
-    font-size: .68rem;
-    padding: .2rem .55rem;
-  }
+
 
   /* Hamburger: rightmost item in row 1 */
   .nav-toggle {
@@ -1425,10 +1424,7 @@ img {
 
   /* .brand-sub already hidden at 600px */
 
-  .nav-badge {
-    font-size: .64rem;
-    padding: .15rem .45rem;
-  }
+
 
   .hero-strip {
     padding: .875rem .75rem;

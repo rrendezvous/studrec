@@ -1,0 +1,328 @@
+{
+    "info": {
+        "_postman_id": "it323-student-management-api",
+        "name": "Student Management API – IT323",
+        "description": "IT323 Midterm PIT – Student Record Management System API Collection. Run requests in order (1–6) for full integration testing.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:3000",
+            "type": "string"
+        },
+        {
+            "key": "created_id",
+            "value": "",
+            "type": "string"
+        }
+    ],
+    "item": [
+        {
+            "name": "1 – GET All Students",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/api/students",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "students"
+                    ]
+                },
+                "description": "Retrieve all students ordered by last_name ASC."
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));",
+                            "pm.test(\"Response has data array\", () => {",
+                            "  const json = pm.response.json();",
+                            "  pm.expect(json.success).to.be.true;",
+                            "  pm.expect(json.data).to.be.an('array');",
+                            "});",
+                            "pm.test(\"Ordered by last_name ASC\", () => {",
+                            "  const names = pm.response.json().data.map(s => s.last_name);",
+                            "  const sorted = [...names].sort();",
+                            "  pm.expect(names).to.eql(sorted);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "2 – GET Student by ID",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/api/students/1",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "students",
+                        "1"
+                    ]
+                },
+                "description": "Retrieve a single student by primary key."
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));",
+                            "pm.test(\"Correct student returned\", () => {",
+                            "  const s = pm.response.json().data;",
+                            "  pm.expect(s.id).to.equal(1);",
+                            "  pm.expect(s).to.have.all.keys('id','student_number','first_name','last_name','course','year_level','created_at');",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "2b – GET Student by ID (404 case)",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/api/students/9999",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "students",
+                        "9999"
+                    ]
+                },
+                "description": "Should return 404 when student does not exist."
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 404\", () => pm.response.to.have.status(404));",
+                            "pm.test(\"Correct error message\", () => {",
+                            "  pm.expect(pm.response.json().message).to.equal(\"Student not found.\");",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "3 – POST Create Student",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"student_number\": \"2025000099\",\n  \"first_name\": \"Postman\",\n  \"last_name\": \"Tester\",\n  \"course\": \"BSIT\",\n  \"year_level\": 1\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/students",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "students"
+                    ]
+                },
+                "description": "Register a new student. Saves the new record ID to the created_id environment variable."
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 201\", () => pm.response.to.have.status(201));",
+                            "pm.test(\"Student was created\", () => {",
+                            "  const json = pm.response.json();",
+                            "  pm.expect(json.success).to.be.true;",
+                            "  pm.expect(json.data.student_number).to.equal(\"2025000099\");",
+                            "  pm.collectionVariables.set(\"created_id\", json.data.id);",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "3b – POST Create Student (400 validation error)",
+            "request": {
+                "method": "POST",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"student_number\": \"2025000100\"\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/students",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "students"
+                    ]
+                },
+                "description": "Should return 400 when required fields are missing."
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 400\", () => pm.response.to.have.status(400));",
+                            "pm.test(\"Validation error message\", () => {",
+                            "  pm.expect(pm.response.json().success).to.be.false;",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "4 – PUT Update Student",
+            "request": {
+                "method": "PUT",
+                "header": [
+                    {
+                        "key": "Content-Type",
+                        "value": "application/json"
+                    }
+                ],
+                "body": {
+                    "mode": "raw",
+                    "raw": "{\n  \"student_number\": \"2025000099\",\n  \"first_name\": \"Postman\",\n  \"last_name\": \"Updated\",\n  \"course\": \"BSCS\",\n  \"year_level\": 2\n}"
+                },
+                "url": {
+                    "raw": "{{base_url}}/api/students/{{created_id}}",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "students",
+                        "{{created_id}}"
+                    ]
+                },
+                "description": "Update the student created in Test 3."
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));",
+                            "pm.test(\"Student was updated\", () => {",
+                            "  const json = pm.response.json();",
+                            "  pm.expect(json.data.last_name).to.equal(\"Updated\");",
+                            "  pm.expect(json.data.course).to.equal(\"BSCS\");",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "5 – DELETE Student",
+            "request": {
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/api/students/{{created_id}}",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "students",
+                        "{{created_id}}"
+                    ]
+                },
+                "description": "Delete the student created in Test 3."
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));",
+                            "pm.test(\"Deletion confirmed\", () => {",
+                            "  pm.expect(pm.response.json().success).to.be.true;",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ]
+        },
+        {
+            "name": "6 – GET Search by Keyword",
+            "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                    "raw": "{{base_url}}/api/students/search/santos",
+                    "host": [
+                        "{{base_url}}"
+                    ],
+                    "path": [
+                        "api",
+                        "students",
+                        "search",
+                        "santos"
+                    ]
+                },
+                "description": "Search students by keyword across first_name, last_name, student_number, and course."
+            },
+            "event": [
+                {
+                    "listen": "test",
+                    "script": {
+                        "exec": [
+                            "pm.test(\"Status code is 200\", () => pm.response.to.have.status(200));",
+                            "pm.test(\"Results contain keyword\", () => {",
+                            "  pm.response.json().data.forEach(s => {",
+                            "    const combined = (s.first_name + s.last_name + s.student_number + s.course).toLowerCase();",
+                            "    pm.expect(combined).to.include(\"santos\");",
+                            "  });",
+                            "});"
+                        ],
+                        "type": "text/javascript"
+                    }
+                }
+            ]
+        }
+    ]
+}
