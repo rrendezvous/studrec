@@ -7,6 +7,7 @@
 'use strict';
 
 const API = '/api/students';
+const PAGE_SIZE = 10;
 
 // Pattern: exactly 10 consecutive digits — e.g. 2023300845
 // Must stay in sync with the backend regex in routes/students.js
@@ -15,6 +16,8 @@ const STUDENT_NUMBER_REGEX = /^\d{10}$/;
 // ── State ────────────────────────────────────────────────────
 let allStudents = [];        // master copy from last full fetch
 let activeStudents = [];     // current display list (search results OR allStudents)
+let filteredStudents = [];   // list after course filter, before pagination slicing
+let currentPage = 1;
 let editingId = null;        // id of student being edited (null = add mode)
 let searchDebounceTimer = null;
 let pendingDeleteId = null;
@@ -37,6 +40,7 @@ const formEditIcon = document.getElementById('form-edit-icon');
 
 const tableBody = document.getElementById('table-body');
 const tableInfo = document.getElementById('table-info');
+const paginationControls = document.getElementById('pagination-controls');
 const recordsHeading = document.getElementById('records-heading');
 const statNumTotal = document.getElementById('stat-num-total');
 const statNumCourses = document.getElementById('stat-num-courses');
@@ -188,7 +192,7 @@ function validateForm() {
 }
 
 // ── Render Table ──────────────────────────────────────────────
-function renderTable(students) {
+function renderTable(students, startIndex = 0) {
     if (!students || students.length === 0) {
         tableBody.innerHTML = `
       <tr class="empty-row">
@@ -198,13 +202,12 @@ function renderTable(students) {
         </td>
       </tr>`;
         syncEditUI();
-        tableInfo.textContent = '0 records';
         return;
     }
 
     tableBody.innerHTML = students.map((s, idx) => `
     <tr data-id="${s.id}">
-      <td>${idx + 1}</td>
+      <td>${startIndex + idx + 1}</td>
       <td><span class="stunum">${escHtml(s.student_number)}</span></td>
       <td><span class="fullname">${escHtml(s.last_name)}, ${escHtml(s.first_name)}</span></td>
       <td><span class="course-chip">${escHtml(s.course)}</span></td>
@@ -219,7 +222,86 @@ function renderTable(students) {
     </tr>`).join('');
 
     syncEditUI();
-    tableInfo.textContent = `Showing ${students.length} record${students.length !== 1 ? 's' : ''}`;
+}
+
+function getFilteredStudents() {
+    const course = filterCourse.value;
+    if (course === 'all') return [...activeStudents];
+    return activeStudents.filter(s => s.course === course);
+}
+
+function renderPaginationControls(totalPages) {
+    if (!paginationControls) return;
+
+    const hasPages = totalPages > 0;
+    const displayPage = hasPages ? currentPage : 0;
+    const pageItems = [];
+
+    // Build compact page windows: 1 ... 4 5 6 ... 20
+    if (hasPages) {
+        if (totalPages <= 7) {
+            for (let p = 1; p <= totalPages; p += 1) pageItems.push(p);
+        } else {
+            pageItems.push(1);
+
+            const start = Math.max(2, currentPage - 1);
+            const end = Math.min(totalPages - 1, currentPage + 1);
+
+            if (start > 2) pageItems.push('ellipsis');
+            for (let p = start; p <= end; p += 1) pageItems.push(p);
+            if (end < totalPages - 1) pageItems.push('ellipsis');
+
+            pageItems.push(totalPages);
+        }
+    }
+
+    const prevDisabled = !hasPages || currentPage <= 1;
+    const nextDisabled = !hasPages || currentPage >= totalPages;
+
+    const prevBtn = `<button type="button" class="pagination-btn pagination-nav ${prevDisabled ? 'is-disabled' : ''}" data-page="${currentPage - 1}" ${prevDisabled ? 'disabled aria-disabled="true"' : ''}>Prev</button>`;
+    const nextBtn = `<button type="button" class="pagination-btn pagination-nav ${nextDisabled ? 'is-disabled' : ''}" data-page="${currentPage + 1}" ${nextDisabled ? 'disabled aria-disabled="true"' : ''}>Next</button>`;
+
+    const numberBtns = pageItems.map((item) => {
+        if (item === 'ellipsis') return '<span class="pagination-ellipsis" aria-hidden="true">…</span>';
+
+        const isActive = item === currentPage;
+        return `<button type="button" class="pagination-btn pagination-page ${isActive ? 'is-active' : ''}" data-page="${item}" ${isActive ? 'aria-current="page"' : ''}>${item}</button>`;
+    }).join('');
+
+    const mobileLabel = `<span id="pagination-mobile-info" class="pagination-mobile-info" aria-live="polite">Page ${displayPage} of ${totalPages}</span>`;
+    paginationControls.innerHTML = `${prevBtn}<div class="pagination-pages">${numberBtns}</div>${mobileLabel}${nextBtn}`;
+}
+
+function renderCurrentPage() {
+    filteredStudents = getFilteredStudents();
+
+    const totalStudents = filteredStudents.length;
+    const totalPages = Math.ceil(totalStudents / PAGE_SIZE);
+
+    if (totalPages === 0) {
+        currentPage = 1;
+        renderTable([]);
+        tableInfo.textContent = 'Showing 0-0 of 0 students';
+        renderPaginationControls(0);
+        return;
+    }
+
+    currentPage = Math.min(Math.max(currentPage, 1), totalPages);
+
+    const startIndex = (currentPage - 1) * PAGE_SIZE;
+    const endIndex = Math.min(startIndex + PAGE_SIZE, totalStudents);
+    const pageStudents = filteredStudents.slice(startIndex, endIndex);
+
+    renderTable(pageStudents, startIndex);
+    tableInfo.textContent = `Showing ${startIndex + 1}-${endIndex} of ${totalStudents} students`;
+    renderPaginationControls(totalPages);
+}
+
+function goToPage(page) {
+    const target = Number(page);
+    if (!Number.isFinite(target)) return;
+    currentPage = target;
+    renderCurrentPage();
 }
 
 // ── HTML escape (XSS safety) ──────────────────────────────────
@@ -281,13 +363,9 @@ function populateCourseFilter(students) {
 
 // ── Apply client-side filter ──────────────────────────────────
 // Filters `activeStudents` so it composes with both full list AND search results.
-function applyFilter() {
-    const course = filterCourse.value;
-    if (course === 'all') {
-        renderTable(activeStudents);
-    } else {
-        renderTable(activeStudents.filter(s => s.course === course));
-    }
+function applyFilter(resetPage = false) {
+    if (resetPage) currentPage = 1;
+    renderCurrentPage();
 }
 
 // ── Fetch all students ────────────────────────────────────────
@@ -299,12 +377,15 @@ async function fetchAllStudents() {
         if (!res.ok) throw new Error(json.message || 'Server error');
         allStudents = json.data || [];
         activeStudents = [...allStudents];   // reset active list to full set
+        currentPage = 1;
         updateStats(allStudents);
         populateCourseFilter(allStudents);
-        applyFilter();
+        applyFilter(true);
     } catch (err) {
         console.error(err);
         tableBody.innerHTML = `<tr class="empty-row"><td colspan="7">⚠️ Failed to load records: ${escHtml(err.message)}</td></tr>`;
+        tableInfo.textContent = 'Showing 0-0 of 0 students';
+        renderPaginationControls(0);
         showToast('Failed to load student records.', 'error');
     }
 }
@@ -324,8 +405,8 @@ async function searchStudents(keyword) {
         if (!res.ok) throw new Error(json.message || 'Search failed');
         activeStudents = json.data || [];   // update active list to search results
         filterCourse.value = 'all';        // reset filter so it applies cleanly
-        applyFilter();                     // filter now works on search results
-        tableInfo.textContent = `Search: "${escHtml(keyword)}" — ${activeStudents.length} result(s)`;
+        currentPage = 1;
+        applyFilter(true);                 // filter now works on search results
     } catch (err) {
         console.error(err);
         showToast('Search failed: ' + err.message, 'error');
@@ -470,6 +551,14 @@ tableBody.addEventListener('click', async (e) => {
     }
 });
 
+if (paginationControls) {
+    paginationControls.addEventListener('click', (e) => {
+        const pageBtn = e.target.closest('[data-page]');
+        if (!pageBtn || pageBtn.disabled) return;
+        goToPage(pageBtn.dataset.page);
+    });
+}
+
 if (confirmCancelBtn) {
     confirmCancelBtn.addEventListener('click', closeDeleteModal);
 }
@@ -507,7 +596,7 @@ clearSearchBtn.addEventListener('click', () => {
 });
 
 // ── Course filter ─────────────────────────────────────────────
-filterCourse.addEventListener('change', applyFilter);
+filterCourse.addEventListener('change', () => applyFilter(true));
 
 // ── Refresh ───────────────────────────────────────────────────
 refreshBtn.addEventListener('click', async () => {
@@ -557,3 +646,4 @@ if (navToggle && navbar) {
 
 // ── Initial load ──────────────────────────────────────────────
 fetchAllStudents();
+

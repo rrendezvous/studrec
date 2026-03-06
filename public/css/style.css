@@ -1086,10 +1086,85 @@ img {
 
 /* Table footer */
 .table-footer {
-  margin-top: .625rem;
-  font-size: .75rem;
+  margin-top: .875rem;
+  padding-top: .75rem;
+  border-top: 1px solid var(--clr-border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+}
+
+.table-info {
+  font-size: .78rem;
+  color: var(--clr-text-muted);
+}
+
+.pagination {
+  display: inline-flex;
+  align-items: center;
+  gap: .5rem;
+  margin-left: auto;
+}
+
+.pagination-pages {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+}
+
+.pagination-btn {
+  min-height: 40px;
+  min-width: 40px;
+  padding: .45rem .72rem;
+  border: 1px solid var(--clr-border);
+  border-radius: var(--radius-sm);
+  background: var(--clr-surface);
+  color: var(--clr-text-muted);
+  font: inherit;
+  font-size: .78rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background var(--trans-fast), color var(--trans-fast), border-color var(--trans-fast), box-shadow var(--trans-fast);
+}
+
+.pagination-btn:hover {
+  background: var(--clr-surface2);
+  border-color: #c8d0e2;
+  color: var(--clr-text);
+}
+
+.pagination-btn:focus-visible {
+  outline: none;
+  border-color: var(--clr-primary);
+  box-shadow: 0 0 0 3px rgba(59, 95, 192, .16);
+}
+
+.pagination-page.is-active {
+  background: var(--clr-primary);
+  border-color: var(--clr-primary);
+  color: #fff;
+}
+
+.pagination-btn.is-disabled,
+.pagination-btn:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+  background: var(--clr-surface2);
+}
+
+.pagination-ellipsis {
   color: var(--clr-text-dim);
-  text-align: right;
+  font-size: .95rem;
+  padding: 0 .2rem;
+  user-select: none;
+}
+
+.pagination-mobile-info {
+  display: none;
+  font-size: .78rem;
+  color: var(--clr-text-muted);
 }
 
 /* ============================================================
@@ -1624,6 +1699,39 @@ body.modal-open {
     flex-wrap: nowrap;
   }
 
+  .table-footer {
+    align-items: stretch;
+    gap: .625rem;
+  }
+
+  .table-info {
+    width: 100%;
+    text-align: left;
+  }
+
+  .pagination {
+    width: 100%;
+    justify-content: space-between;
+    margin-left: 0;
+  }
+
+  .pagination-pages {
+    display: none;
+  }
+
+  .pagination-mobile-info {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+  }
+
+  .pagination-btn {
+    min-height: 44px;
+    min-width: 84px;
+    padding: .55rem .8rem;
+  }
+
   /* ── Footer ──────────────────────────────────────────────── */
   .footer-inner {
     flex-direction: column;
@@ -1804,7 +1912,6 @@ body.modal-open {
 
   .table-footer {
     font-size: .72rem;
-    text-align: left;
   }
 
   .confirm-actions {
