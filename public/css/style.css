@@ -424,17 +424,30 @@ img {
 }
 
 /* Per-course breakdown grid */
+.stat-per-course-scroll {
+  max-height: 100px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 0.25rem;
+  margin-right: -0.25rem;
+}
+
+.stat-per-course-list,
 .stat-course-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 0.5rem;
   width: 100%;
+  min-width: 0;
 }
 
 .course-stat-badge {
   display: inline-flex;
   align-items: center;
   justify-content: space-between;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   background: var(--clr-surface);
   border: 1px solid var(--clr-border-subtle);
   border-radius: var(--radius-sm);
@@ -454,6 +467,11 @@ img {
 
 .c-name {
   color: var(--clr-text-muted);
+  min-width: 0;
+  flex: 1;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .c-count {
@@ -465,6 +483,7 @@ img {
   border-radius: 4px;
   min-width: 20px;
   height: 20px;
+  flex-shrink: 0;
   font-weight: 700;
   font-size: 0.75rem;
   box-shadow: 0 1px 2px rgba(59, 95, 192, 0.2);
@@ -475,6 +494,20 @@ img {
   color: var(--clr-text-dim);
   font-style: italic;
   padding: 0.25rem 0;
+  grid-column: 1 / -1;
+}
+
+@media (max-width: 1024px) {
+  .stat-per-course-list,
+  .stat-course-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 768px) {
+  .stat-per-course-scroll {
+    max-height: 120px;
+  }
 }
 
 /* ============================================================
