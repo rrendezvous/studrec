@@ -269,7 +269,7 @@ img {
   align-items: start;
 }
 
-.dashboard-grid > * {
+.dashboard-grid>* {
   min-width: 0;
 }
 
@@ -289,24 +289,42 @@ img {
   position: relative;
   overflow: hidden;
 
-  /* Subtle gradient top accent */
-  border-top: 3px solid var(--clr-primary);
-
   /* CSS GRID — hero layout */
   display: grid;
-  /* minmax(0, ...) allows columns to shrink below content size on narrow viewports */
-  grid-template-columns: minmax(0, 1fr) minmax(0, auto);
-  align-items: center;
-  gap: 2rem;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
 
-  /* FIX: allow this grid item to shrink to its track size */
   min-width: 0;
   max-width: 100%;
 }
 
+/* Subtle top gradient accent bar */
+.hero-strip::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b5fc0, #7c5fc0, #3b5fc0);
+  background-size: 200% 100%;
+  animation: shimmerBar 4s ease-in-out infinite;
+}
+
+@keyframes shimmerBar {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
 .hero-content {
   min-width: 0;
-  /* FIX: allow content column to shrink in internal 1fr auto grid */
 }
 
 .hero-title {
@@ -323,46 +341,140 @@ img {
   font-size: .875rem;
 }
 
+/* Stats grid: 3 columns on desktop */
 .hero-stats {
-  display: flex;
-  gap: .875rem;
-  flex-wrap: wrap;
-  /* wrap to next line if viewport is too narrow */
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem;
+  align-items: stretch;
+  /* Cards stretch to match equal heights */
   min-width: 0;
-  /* FIX: allow the auto grid column to shrink */
 }
 
+/* --- Stat Card --- */
 .stat-card {
   background: var(--clr-bg);
   border: 1px solid var(--clr-border);
-  border-radius: var(--radius-md);
-  padding: 1.05rem 1.4rem;
-  text-align: center;
-  min-width: 96px;
-  flex: 1 1 96px;
-  transition: border-color var(--trans-fast), box-shadow var(--trans-fast), transform var(--trans-fast);
+  border-radius: var(--radius-lg);
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  height: 100%;
+  box-shadow: var(--shadow-xs);
+  transition: border-color var(--trans-base), box-shadow var(--trans-base), transform var(--trans-base);
 }
 
 .stat-card:hover {
   border-color: var(--clr-primary);
-  box-shadow: 0 8px 18px rgba(59, 95, 192, .16);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
   transform: translateY(-3px);
 }
 
 .stat-number {
   display: block;
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: var(--clr-primary);
+  font-size: 2.85rem;
+  font-weight: 800;
+  color: var(--clr-text);
   line-height: 1;
-  margin-bottom: .28rem;
+  letter-spacing: -1px;
+}
+
+.stat-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.u-mb-sm {
+  margin-bottom: 0.75rem;
+}
+
+/* Icon circles */
+.stat-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.8rem;
+  flex-shrink: 0;
+}
+
+.stat-icon--students {
+  background: var(--clr-primary-lt);
+}
+
+.stat-icon--courses {
+  background: var(--clr-success-lt);
+}
+
+.stat-icon--breakdown {
+  background: #f4eef9;
 }
 
 .stat-label {
-  font-size: .675rem;
+  font-size: .75rem;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: .7px;
+  letter-spacing: 0.8px;
   color: var(--clr-text-muted);
+}
+
+/* Per-course breakdown grid */
+.stat-course-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.5rem;
+  width: 100%;
+}
+
+.course-stat-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border-subtle);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.2rem 0.2rem 0.5rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--clr-text);
+  gap: 0.5rem;
+  transition: transform var(--trans-fast), box-shadow var(--trans-fast), border-color var(--trans-fast);
+}
+
+.course-stat-badge:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+  border-color: rgba(59, 95, 192, 0.35);
+}
+
+.c-name {
+  color: var(--clr-text-muted);
+}
+
+.c-count {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--clr-primary);
+  color: #fff;
+  border-radius: 4px;
+  min-width: 20px;
+  height: 20px;
+  font-weight: 700;
+  font-size: 0.75rem;
+  box-shadow: 0 1px 2px rgba(59, 95, 192, 0.2);
+}
+
+.stat-per-course-empty {
+  font-size: .85rem;
+  color: var(--clr-text-dim);
+  font-style: italic;
+  padding: 0.25rem 0;
 }
 
 /* ============================================================
@@ -374,10 +486,13 @@ img {
   border-radius: 16px;
   padding: 1.5rem;
   box-shadow: 0 8px 22px rgba(17, 24, 39, .06);
-  transition: box-shadow var(--trans-base);
-  /* FIX: allow this grid item to shrink to its 1fr track in site-main */
+  transition: box-shadow var(--trans-base), transform var(--trans-base);
   min-width: 0;
   max-width: 100%;
+}
+
+.section-card:hover {
+  box-shadow: 0 12px 32px rgba(17, 24, 39, .1);
 }
 
 .section-card:focus-within {
@@ -387,6 +502,19 @@ img {
 .section-card.is-editing {
   border-color: rgba(59, 95, 192, .55);
   box-shadow: 0 10px 28px rgba(59, 95, 192, .18);
+  animation: pulseEditBorder 2s ease-in-out infinite;
+}
+
+@keyframes pulseEditBorder {
+
+  0%,
+  100% {
+    border-color: rgba(59, 95, 192, .55);
+  }
+
+  50% {
+    border-color: rgba(59, 95, 192, .25);
+  }
 }
 
 .section-header {
@@ -510,7 +638,8 @@ img {
 .form-input:focus {
   outline: none;
   border-color: var(--clr-primary);
-  box-shadow: 0 0 0 3px rgba(59, 95, 192, .22), 0 6px 16px rgba(59, 95, 192, .14);
+  box-shadow: 0 0 0 4px rgba(59, 95, 192, .15), 0 6px 16px rgba(59, 95, 192, .12);
+  border-left: 3px solid var(--clr-primary);
 }
 
 .form-input.invalid {
@@ -846,20 +975,43 @@ img {
 }
 
 .records-table tbody tr {
-  transition: background var(--trans-fast), transform var(--trans-fast);
+  transition: background var(--trans-fast), transform var(--trans-fast), box-shadow var(--trans-fast);
+  border-left: 3px solid transparent;
+}
+
+.records-table tbody tr:nth-child(even) td {
+  background: rgba(243, 246, 252, .5);
 }
 
 .records-table tbody tr:hover td {
-  background: #f8faff;
+  background: #f0f4ff;
 }
 
 .records-table tbody tr:hover {
   transform: translateY(-1px);
+  border-left-color: var(--clr-primary);
 }
 
 .records-table tr.row-editing td {
   background: #e6efff !important;
   border-bottom-color: rgba(59, 95, 192, .25);
+}
+
+.records-table tr.row-editing {
+  border-left-color: var(--clr-primary);
+  animation: pulseRowBg 2s ease-in-out infinite;
+}
+
+@keyframes pulseRowBg {
+
+  0%,
+  100% {
+    background-color: transparent;
+  }
+
+  50% {
+    background-color: rgba(59, 95, 192, .04);
+  }
 }
 
 /* Row action buttons — flex row */
@@ -995,28 +1147,69 @@ body.modal-open {
   position: fixed;
   inset: 0;
   background: rgba(17, 24, 39, .58);
-  backdrop-filter: blur(2px);
+  backdrop-filter: blur(4px);
   display: grid;
   place-items: center;
   padding: 1rem;
   z-index: 1200;
+  animation: modalOverlayIn .2s ease;
 }
 
 .confirm-modal[hidden] {
   display: none !important;
 }
 
+@keyframes modalOverlayIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
 .confirm-dialog {
   width: min(100%, 460px);
   background: var(--clr-surface);
   border: 1px solid var(--clr-border);
-  border-radius: 14px;
-  box-shadow: 0 20px 48px rgba(17, 24, 39, .28);
-  padding: 1.1rem 1.2rem 1rem;
+  border-radius: 18px;
+  box-shadow: 0 24px 56px rgba(17, 24, 39, .32);
+  padding: 1.75rem 1.5rem 1.25rem;
+  text-align: center;
+  animation: modalDialogIn .3s cubic-bezier(.17, .67, .35, 1.15);
+}
+
+@keyframes modalDialogIn {
+  from {
+    opacity: 0;
+    transform: scale(.92) translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.confirm-icon-wrap {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--clr-danger-lt);
+  border: 2px solid rgba(217, 79, 79, .2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto .875rem;
+}
+
+.confirm-icon {
+  font-size: 1.5rem;
 }
 
 .confirm-title {
-  font-size: 1.05rem;
+  font-size: 1.1rem;
   font-weight: 700;
   color: var(--clr-text);
   margin-bottom: .5rem;
@@ -1025,7 +1218,7 @@ body.modal-open {
 .confirm-text {
   font-size: .9rem;
   color: var(--clr-text-muted);
-  margin-bottom: .65rem;
+  margin-bottom: .75rem;
 }
 
 .confirm-student {
@@ -1033,25 +1226,45 @@ body.modal-open {
   color: var(--clr-text);
   background: #f7f9fe;
   border: 1px solid var(--clr-border-subtle);
-  border-radius: 10px;
-  padding: .55rem .7rem;
-  margin-bottom: .55rem;
+  border-radius: 12px;
+  padding: .65rem .85rem;
+  margin-bottom: .65rem;
+  text-align: left;
 }
 
 .confirm-warning {
   font-size: .82rem;
   color: var(--clr-danger);
-  margin-bottom: .95rem;
+  margin-bottom: 1.125rem;
 }
 
 .confirm-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: .55rem;
+  justify-content: center;
+  gap: .75rem;
 }
 
 .confirm-actions .btn {
-  min-height: 40px;
+  min-height: 42px;
+  min-width: 120px;
+  justify-content: center;
+}
+
+.btn-danger {
+  background: var(--clr-danger);
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(217, 79, 79, .35);
+}
+
+.btn-danger:hover {
+  background: var(--clr-danger-h);
+  box-shadow: 0 6px 14px rgba(217, 79, 79, .42);
+  transform: translateY(-2px);
+}
+
+.btn-danger:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(217, 79, 79, .28);
 }
 
 @keyframes toastIn {
@@ -1141,6 +1354,11 @@ body.modal-open {
 @media (max-width: 1024px) {
   .dashboard-grid {
     grid-template-columns: 1fr;
+  }
+
+  /* 2-column statistics grid on tablet */
+  .hero-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 
   #registration .form-grid {
@@ -1246,12 +1464,13 @@ body.modal-open {
     max-width: 100%;
   }
 
-  /* Stat cards: 2-column grid, share space perfectly */
+  /* Stat cards: stack vertically on mobile */
   .hero-stats {
     display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
-    gap: .625rem;
+    grid-template-columns: 1fr !important;
+    gap: 1rem;
     width: 100%;
+    align-items: stretch;
     min-width: 0;
     max-width: 100%;
   }
@@ -1260,7 +1479,7 @@ body.modal-open {
     flex: unset;
     min-width: 0;
     max-width: 100%;
-    padding: .75rem 1rem;
+    padding: 1.15rem 1.25rem;
   }
 
   .stat-number {
@@ -1643,5 +1862,31 @@ body.modal-open {
   /* Make sure form buttons stay full-width */
   .form-actions .btn {
     font-size: .85rem;
+  }
+}
+
+/* ============================================================
+   UPDATED LAYOUT BREAKPOINTS
+   ============================================================ */
+@media (max-width: 1024px) {
+  .hero-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-stats {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .hero-stats {
+    grid-template-columns: 1fr !important;
+  }
+
+  .stat-course-grid,
+  .stat-per-course-list {
+    grid-template-columns: repeat(2, 1fr) !important;
   }
 }

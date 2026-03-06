@@ -243,6 +243,32 @@ function updateStats(students) {
     if (recordsHeading) {
         recordsHeading.innerHTML = '<span class="section-icon">📊</span> Student Records <span class="records-count">' + total + '</span>';
     }
+
+    const statPerCourseList = document.getElementById('stat-per-course-list');
+    if (statPerCourseList) {
+        if (total === 0) {
+            statPerCourseList.innerHTML = '<span class="stat-per-course-empty">No data yet</span>';
+        } else {
+            const courseCounts = {};
+            students.forEach(s => {
+                const course = s.course || 'Unknown';
+                courseCounts[course] = (courseCounts[course] || 0) + 1;
+            });
+
+            const sortedCourses = Object.entries(courseCounts).sort((a, b) => {
+                if (b[1] !== a[1]) return b[1] - a[1];
+                return a[0].localeCompare(b[0]);
+            });
+
+            statPerCourseList.className = 'stat-course-grid'; // Swap class for CSS Grid
+            statPerCourseList.innerHTML = sortedCourses.map(([course, count]) => {
+                return `<div class="course-stat-badge">
+                  <span class="c-name">${escHtml(course)}</span>
+                  <span class="c-count">${count}</span>
+                </div>`;
+            }).join('');
+        }
+    }
 }
 
 // ── Populate Course Filter dropdown ──────────────────────────
