@@ -100,7 +100,7 @@ pm.test("Student was created", () => {
   const json = pm.response.json();
   pm.expect(json.success).to.be.true;
   pm.expect(json.data.student_number).to.equal("2025000099");
-  pm.environment.set("created_id", json.data.id);
+  pm.collectionVariables.set("created_id", json.data.id);
 });
 ```
 

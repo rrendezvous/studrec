@@ -50,7 +50,7 @@
 
   /* Layout */
   --nav-h: 64px;
-  --max-w: 1120px;
+  --max-w: 1400px;
 
   font-size: 16px;
 }
@@ -254,12 +254,27 @@ img {
   max-width: var(--max-w);
   width: 100%;
   margin: 0 auto;
-  padding: 2rem 1.5rem 4rem;
+  padding: 1.5rem 1.5rem 3rem;
 
   /* CSS GRID — sections stacked vertically */
   display: grid;
   grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 420px minmax(0, 1fr);
   gap: 1.5rem;
+  align-items: start;
+}
+
+.dashboard-grid > * {
+  min-width: 0;
+}
+
+#registration .form-grid {
+  grid-template-columns: 1fr;
 }
 
 /* ============================================================
@@ -268,9 +283,9 @@ img {
 .hero-strip {
   background: var(--clr-surface);
   border: 1px solid var(--clr-border);
-  border-radius: var(--radius-lg);
-  padding: 2rem 2.25rem;
-  box-shadow: var(--shadow-sm);
+  border-radius: 16px;
+  padding: 1.9rem 2rem;
+  box-shadow: 0 8px 22px rgba(17, 24, 39, .06);
   position: relative;
   overflow: hidden;
 
@@ -356,9 +371,9 @@ img {
 .section-card {
   background: var(--clr-surface);
   border: 1px solid var(--clr-border);
-  border-radius: var(--radius-lg);
-  padding: 1.875rem 2.125rem;
-  box-shadow: var(--shadow-sm);
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 8px 22px rgba(17, 24, 39, .06);
   transition: box-shadow var(--trans-base);
   /* FIX: allow this grid item to shrink to its 1fr track in site-main */
   min-width: 0;
@@ -608,11 +623,11 @@ img {
 
 /* Edit (secondary action in table) */
 .btn-edit {
-  background: var(--clr-edit-lt);
+  background: #eef3ff;
   color: var(--clr-edit);
-  border: 1px solid rgba(74, 111, 165, .2);
+  border: 1px solid rgba(59, 95, 192, .25);
   font-size: .78rem;
-  padding: .35rem .75rem;
+  padding: .38rem .72rem;
   border-radius: var(--radius-sm);
 }
 
@@ -626,7 +641,7 @@ img {
   color: var(--clr-danger);
   border: 1px solid rgba(217, 79, 79, .2);
   font-size: .78rem;
-  padding: .35rem .75rem;
+  padding: .38rem .72rem;
   border-radius: var(--radius-sm);
 }
 
@@ -652,7 +667,7 @@ img {
   align-items: center;
   gap: .75rem;
   flex-wrap: wrap;
-  margin-bottom: 1.125rem;
+  margin-bottom: 1rem;
 }
 
 .search-wrapper {
@@ -734,10 +749,11 @@ img {
 .table-wrapper {
   width: 100%;
   overflow-x: auto;
-  border-radius: var(--radius-md);
+  border-radius: 12px;
   border: 1px solid var(--clr-border);
   -webkit-overflow-scrolling: touch;
   overscroll-behavior-x: contain;
+  background: var(--clr-surface);
 }
 
 .records-table {
@@ -747,14 +763,14 @@ img {
 }
 
 .records-table thead {
-  background: var(--clr-primary-lt);
+  background: #f3f6fc;
   position: sticky;
   top: 0;
   z-index: 1;
 }
 
 .records-table th {
-  padding: .8rem 1rem;
+  padding: .85rem .9rem;
   text-align: left;
   font-size: .7rem;
   font-weight: 700;
@@ -766,7 +782,7 @@ img {
 }
 
 .records-table td {
-  padding: .875rem 1rem;
+  padding: .9rem .9rem;
   vertical-align: middle;
   border-bottom: 1px solid var(--clr-border-subtle);
   color: var(--clr-text);
@@ -777,11 +793,15 @@ img {
 }
 
 .records-table tbody tr {
-  transition: background var(--trans-fast);
+  transition: background var(--trans-fast), transform var(--trans-fast);
 }
 
 .records-table tbody tr:hover td {
-  background: var(--clr-primary-lt);
+  background: #f8faff;
+}
+
+.records-table tbody tr:hover {
+  transform: translateY(-1px);
 }
 
 /* Row action buttons — flex row */
@@ -982,6 +1002,25 @@ img {
 
 ::-webkit-scrollbar-thumb:hover {
   background: var(--clr-text-dim);
+}
+
+/* ============================================================
+   RESPONSIVE  – 1200 px and 1024 px dashboard breakpoints
+   ============================================================ */
+@media (max-width: 1200px) {
+  .dashboard-grid {
+    grid-template-columns: 360px minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1024px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  #registration .form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 /* ============================================================

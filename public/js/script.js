@@ -422,6 +422,14 @@ if (navToggle && navbar) {
             navToggle.setAttribute('aria-expanded', 'false');
         });
     });
+
+    // Prevent stale open mobile menu after resizing to desktop widths.
+    window.addEventListener('resize', () => {
+        if (window.innerWidth > 768 && navbar.classList.contains('nav-open')) {
+            navbar.classList.remove('nav-open');
+            navToggle.setAttribute('aria-expanded', 'false');
+        }
+    });
 }
 
 // ── Initial load ──────────────────────────────────────────────

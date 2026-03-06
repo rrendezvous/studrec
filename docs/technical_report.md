@@ -64,9 +64,11 @@ studrec/
 │   ├── er_diagram_and_api_docs.md   ← ER diagram + API reference
 │   ├── postman_collection_guide.md  ← Postman test descriptions
 │   ├── postman_collection.json      ← Importable Postman Collection v2.1
+│   ├── groupmate_guide.md           ← Teammate setup guide
 │   ├── schema.sql                   ← Database DDL (run first)
 │   ├── seed.sql                     ← Sample data (run after schema.sql)
 │   └── technical_report.md         ← This document
+├── pics/                  ← Architecture and ER diagrams (PNG)
 └── student_management.sql ← Database schema + seed data
 ```
 
