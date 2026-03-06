@@ -17,6 +17,8 @@ let allStudents = [];        // master copy from last full fetch
 let activeStudents = [];     // current display list (search results OR allStudents)
 let editingId = null;        // id of student being edited (null = add mode)
 let searchDebounceTimer = null;
+let pendingDeleteId = null;
+let lastFocusedElement = null;
 
 // ── DOM references ────────────────────────────────────────────
 const form = document.getElementById('student-form');
@@ -30,6 +32,8 @@ const submitBtn = document.getElementById('submit-btn');
 const cancelEditBtn = document.getElementById('cancel-edit-btn');
 const formFeedback = document.getElementById('form-feedback');
 const formTitleLabel = document.getElementById('form-title-label');
+const registrationSection = document.getElementById('registration');
+const formEditIcon = document.getElementById('form-edit-icon');
 
 const tableBody = document.getElementById('table-body');
 const tableInfo = document.getElementById('table-info');
@@ -43,6 +47,10 @@ const filterCourse = document.getElementById('filter-course');
 const refreshBtn = document.getElementById('refresh-btn');
 
 const toastContainer = document.getElementById('toast-container');
+const confirmModal = document.getElementById('confirm-modal');
+const confirmStudentName = document.getElementById('confirm-student-name');
+const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
 
 // ── Utility: Toast ────────────────────────────────────────────
 function showToast(message, type = 'info') {
@@ -85,6 +93,70 @@ function setFieldError(fieldId, errId, message) {
     document.getElementById(fieldId).classList.add('invalid');
 }
 
+function syncEditUI() {
+    const isEditing = editingId !== null && editingId !== undefined;
+
+    if (registrationSection) {
+        registrationSection.classList.toggle('is-editing', isEditing);
+    }
+    if (formEditIcon) {
+        formEditIcon.hidden = !isEditing;
+    }
+
+    tableBody.querySelectorAll('tr.row-editing').forEach(row => row.classList.remove('row-editing'));
+    if (isEditing) {
+        const activeRow = tableBody.querySelector(`tr[data-id="${editingId}"]`);
+        if (activeRow) activeRow.classList.add('row-editing');
+    }
+}
+
+function openDeleteModal(id, studentName) {
+    pendingDeleteId = id;
+    if (!confirmModal) return;
+
+    lastFocusedElement = document.activeElement;
+    if (confirmStudentName) confirmStudentName.textContent = studentName || '—';
+    confirmModal.hidden = false;
+    confirmModal.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('modal-open');
+    if (confirmCancelBtn) confirmCancelBtn.focus();
+}
+
+function closeDeleteModal() {
+    pendingDeleteId = null;
+    if (!confirmModal) return;
+
+    confirmModal.hidden = true;
+    confirmModal.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('modal-open');
+    if (lastFocusedElement && typeof lastFocusedElement.focus === 'function') {
+        lastFocusedElement.focus();
+    }
+}
+
+async function confirmDelete() {
+    if (!pendingDeleteId) {
+        closeDeleteModal();
+        return;
+    }
+
+    const id = pendingDeleteId;
+    if (confirmDeleteBtn) confirmDeleteBtn.disabled = true;
+
+    try {
+        const res = await fetch(`${API}/${id}`, { method: 'DELETE' });
+        const json = await res.json();
+        if (!res.ok) throw new Error(json.message);
+        showToast(json.message, 'success');
+        closeDeleteModal();
+        await fetchAllStudents();
+    } catch (err) {
+        showToast('Delete failed: ' + err.message, 'error');
+    } finally {
+        if (confirmDeleteBtn) confirmDeleteBtn.disabled = false;
+    }
+}
+
 function validateForm() {
     let valid = true;
     clearErrors();
@@ -125,6 +197,7 @@ function renderTable(students) {
           No student records found.
         </td>
       </tr>`;
+        syncEditUI();
         tableInfo.textContent = '0 records';
         return;
     }
@@ -145,6 +218,7 @@ function renderTable(students) {
       </td>
     </tr>`).join('');
 
+    syncEditUI();
     tableInfo.textContent = `Showing ${students.length} record${students.length !== 1 ? 's' : ''}`;
 }
 
@@ -246,9 +320,21 @@ function populateFormForEdit(student) {
     submitBtn.innerHTML = '<span class="btn-icon">💾</span> Update Student';
     cancelEditBtn.style.display = 'inline-flex';
     clearErrors();
+    syncEditUI();
 
-    // Scroll to form
-    document.getElementById('registration').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    // Smooth-scroll only when needed; avoid abrupt jumps if form is already visible.
+    const registrationEl = document.getElementById('registration');
+    const stickyHeader = document.querySelector('.site-header');
+    if (registrationEl) {
+        const rect = registrationEl.getBoundingClientRect();
+        const headerOffset = (stickyHeader?.offsetHeight || 0) + 12;
+        const isVisibleEnough = rect.top >= headerOffset && rect.top <= window.innerHeight * 0.45;
+
+        if (!isVisibleEnough) {
+            const targetY = window.scrollY + rect.top - headerOffset;
+            window.scrollTo({ top: Math.max(0, targetY), behavior: 'smooth' });
+        }
+    }
 }
 
 // ── Reset form to add mode ────────────────────────────────────
@@ -260,6 +346,7 @@ function resetFormToAddMode() {
     submitBtn.innerHTML = '<span class="btn-icon">＋</span> Register Student';
     cancelEditBtn.style.display = 'none';
     clearErrors();
+    syncEditUI();
 }
 
 // ── Form submit handler ───────────────────────────────────────
@@ -353,19 +440,23 @@ tableBody.addEventListener('click', async (e) => {
     if (action === 'delete') {
         const row = btn.closest('tr');
         const name = row.querySelector('.fullname')?.textContent || 'this student';
-        if (!window.confirm(`Are you sure you want to delete the record for:\n${name}?\n\nThis action cannot be undone.`)) return;
-
-        try {
-            const res = await fetch(`${API}/${id}`, { method: 'DELETE' });
-            const json = await res.json();
-            if (!res.ok) throw new Error(json.message);
-            showToast(json.message, 'success');
-            await fetchAllStudents();
-        } catch (err) {
-            showToast('Delete failed: ' + err.message, 'error');
-        }
+        openDeleteModal(id, name);
     }
 });
+
+if (confirmCancelBtn) {
+    confirmCancelBtn.addEventListener('click', closeDeleteModal);
+}
+
+if (confirmDeleteBtn) {
+    confirmDeleteBtn.addEventListener('click', confirmDelete);
+}
+
+if (confirmModal) {
+    confirmModal.addEventListener('click', (e) => {
+        if (e.target === confirmModal) closeDeleteModal();
+    });
+}
 
 // ── Search input with debounce ────────────────────────────────
 searchInput.addEventListener('input', () => {
@@ -403,7 +494,13 @@ refreshBtn.addEventListener('click', async () => {
 
 // ── Keyboard shortcut: Escape cancels edit ────────────────────
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && editingId) resetFormToAddMode();
+    if (e.key !== 'Escape') return;
+
+    if (confirmModal && !confirmModal.hidden) {
+        closeDeleteModal();
+        return;
+    }
+    if (editingId) resetFormToAddMode();
 });
 // ── Hamburger nav toggle ──────────────────────────────────
 const navToggle = document.getElementById('nav-toggle');

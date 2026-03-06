@@ -336,7 +336,7 @@ img {
   background: var(--clr-bg);
   border: 1px solid var(--clr-border);
   border-radius: var(--radius-md);
-  padding: 1rem 1.375rem;
+  padding: 1.05rem 1.4rem;
   text-align: center;
   min-width: 96px;
   flex: 1 1 96px;
@@ -345,17 +345,17 @@ img {
 
 .stat-card:hover {
   border-color: var(--clr-primary);
-  box-shadow: 0 4px 12px rgba(59, 95, 192, .14);
-  transform: translateY(-2px);
+  box-shadow: 0 8px 18px rgba(59, 95, 192, .16);
+  transform: translateY(-3px);
 }
 
 .stat-number {
   display: block;
-  font-size: 1.625rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: var(--clr-primary);
   line-height: 1;
-  margin-bottom: .2rem;
+  margin-bottom: .28rem;
 }
 
 .stat-label {
@@ -382,6 +382,11 @@ img {
 
 .section-card:focus-within {
   box-shadow: var(--shadow-md);
+}
+
+.section-card.is-editing {
+  border-color: rgba(59, 95, 192, .55);
+  box-shadow: 0 10px 28px rgba(59, 95, 192, .18);
 }
 
 .section-header {
@@ -420,6 +425,20 @@ img {
   font-size: 1rem;
 }
 
+.form-edit-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1px solid rgba(59, 95, 192, .22);
+  background: rgba(59, 95, 192, .1);
+  color: var(--clr-primary);
+  font-size: .9rem;
+  flex-shrink: 0;
+}
+
 /* Inline count in section heading, e.g. "Student Records (11)" */
 .records-count {
   display: inline-flex;
@@ -441,7 +460,7 @@ img {
 .student-form {
   display: flex;
   flex-direction: column;
-  gap: 1.25rem;
+  gap: 1.35rem;
 }
 
 .form-grid {
@@ -449,13 +468,13 @@ img {
   display: grid;
   /* Reduced from 220px to 180px so grid collapses to 1 column earlier on narrow viewports */
   grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 1rem;
+  gap: 1.1rem;
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: .375rem;
+  gap: .45rem;
 }
 
 .form-label {
@@ -491,12 +510,13 @@ img {
 .form-input:focus {
   outline: none;
   border-color: var(--clr-primary);
-  box-shadow: 0 0 0 3px rgba(74, 111, 165, .12);
+  box-shadow: 0 0 0 3px rgba(59, 95, 192, .22), 0 6px 16px rgba(59, 95, 192, .14);
 }
 
 .form-input.invalid {
   border-color: var(--clr-danger);
-  box-shadow: 0 0 0 3px rgba(217, 79, 79, .10);
+  background: #fff7f7;
+  box-shadow: 0 0 0 3px rgba(217, 79, 79, .18);
 }
 
 .form-input option {
@@ -509,6 +529,7 @@ img {
   color: var(--clr-danger);
   min-height: 1em;
   display: block;
+  line-height: 1.25;
 }
 
 .form-actions {
@@ -562,6 +583,13 @@ img {
   opacity: .88;
 }
 
+.btn:disabled {
+  opacity: .65;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
 /* Primary — Add / Save */
 .btn-primary {
   background: var(--clr-primary-gradient);
@@ -571,8 +599,13 @@ img {
 
 .btn-primary:hover {
   background: var(--clr-primary-h);
-  box-shadow: 0 3px 10px rgba(59, 95, 192, .4);
-  transform: translateY(-1px);
+  box-shadow: 0 6px 14px rgba(59, 95, 192, .42);
+  transform: translateY(-2px);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(59, 95, 192, .28);
 }
 
 /* Secondary — Reset / neutral */
@@ -633,6 +666,13 @@ img {
 
 .btn-edit:hover {
   background: #dce6f3;
+  box-shadow: 0 4px 10px rgba(59, 95, 192, .18);
+  transform: translateY(-1px);
+}
+
+.btn-edit:active {
+  transform: translateY(0);
+  box-shadow: none;
 }
 
 /* Delete (danger action in table) */
@@ -647,6 +687,19 @@ img {
 
 .btn-del:hover {
   background: #f9dede;
+  box-shadow: 0 4px 10px rgba(217, 79, 79, .18);
+  transform: translateY(-1px);
+}
+
+.btn-del:active {
+  transform: translateY(0);
+  box-shadow: none;
+}
+
+.action-cell .btn {
+  min-height: 32px;
+  min-width: 74px;
+  justify-content: center;
 }
 
 .btn-sm {
@@ -705,7 +758,7 @@ img {
 .search-input:focus {
   outline: none;
   border-color: var(--clr-primary);
-  box-shadow: 0 0 0 3px rgba(74, 111, 165, .12);
+  box-shadow: 0 0 0 3px rgba(59, 95, 192, .2), 0 6px 16px rgba(59, 95, 192, .12);
 }
 
 #clear-search-btn {
@@ -782,7 +835,7 @@ img {
 }
 
 .records-table td {
-  padding: .9rem .9rem;
+  padding: .98rem .9rem;
   vertical-align: middle;
   border-bottom: 1px solid var(--clr-border-subtle);
   color: var(--clr-text);
@@ -802,6 +855,11 @@ img {
 
 .records-table tbody tr:hover {
   transform: translateY(-1px);
+}
+
+.records-table tr.row-editing td {
+  background: #e6efff !important;
+  border-bottom-color: rgba(59, 95, 192, .25);
 }
 
 /* Row action buttons — flex row */
@@ -927,6 +985,73 @@ img {
 
 .toast.warning {
   border-left: 3px solid var(--clr-warning);
+}
+
+body.modal-open {
+  overflow: hidden;
+}
+
+.confirm-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 24, 39, .58);
+  backdrop-filter: blur(2px);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  z-index: 1200;
+}
+
+.confirm-modal[hidden] {
+  display: none !important;
+}
+
+.confirm-dialog {
+  width: min(100%, 460px);
+  background: var(--clr-surface);
+  border: 1px solid var(--clr-border);
+  border-radius: 14px;
+  box-shadow: 0 20px 48px rgba(17, 24, 39, .28);
+  padding: 1.1rem 1.2rem 1rem;
+}
+
+.confirm-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--clr-text);
+  margin-bottom: .5rem;
+}
+
+.confirm-text {
+  font-size: .9rem;
+  color: var(--clr-text-muted);
+  margin-bottom: .65rem;
+}
+
+.confirm-student {
+  font-size: .9rem;
+  color: var(--clr-text);
+  background: #f7f9fe;
+  border: 1px solid var(--clr-border-subtle);
+  border-radius: 10px;
+  padding: .55rem .7rem;
+  margin-bottom: .55rem;
+}
+
+.confirm-warning {
+  font-size: .82rem;
+  color: var(--clr-danger);
+  margin-bottom: .95rem;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: .55rem;
+}
+
+.confirm-actions .btn {
+  min-height: 40px;
 }
 
 @keyframes toastIn {
@@ -1164,6 +1289,7 @@ img {
   .form-input {
     padding: .75rem 1rem;
     font-size: .9rem;
+    min-height: 44px;
   }
 
   .form-actions {
@@ -1176,6 +1302,7 @@ img {
     width: 100%;
     justify-content: center;
     padding: .75rem 1.25rem;
+    min-height: 44px;
   }
 
   /* ── Toolbar ─────────────────────────────────────────────── */
@@ -1256,7 +1383,21 @@ img {
   .btn-del {
     padding: .4rem .55rem;
     font-size: .72rem;
-    min-height: 32px;
+    min-height: 38px;
+    min-width: 68px;
+  }
+
+  .form-edit-icon {
+    order: 3;
+  }
+
+  .confirm-dialog {
+    width: min(100%, 520px);
+    padding: 1rem;
+  }
+
+  .confirm-actions .btn {
+    min-height: 44px;
   }
 
   .action-cell {
@@ -1321,7 +1462,7 @@ img {
   .btn-del {
     padding: .35rem .5rem;
     font-size: .7rem;
-    min-height: 30px;
+    min-height: 34px;
   }
 }
 
@@ -1427,7 +1568,7 @@ img {
   .btn-del {
     padding: .3rem .55rem;
     font-size: .7rem;
-    min-height: 28px;
+    min-height: 32px;
     gap: .2rem;
     width: 100%;
     /* fill column width when stacked */
@@ -1445,6 +1586,15 @@ img {
   .table-footer {
     font-size: .72rem;
     text-align: left;
+  }
+
+  .confirm-actions {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+
+  .confirm-actions .btn {
+    width: 100%;
   }
 }
 
@@ -1487,6 +1637,7 @@ img {
   .btn-del {
     padding: .45rem .55rem;
     font-size: .72rem;
+    min-height: 34px;
   }
 
   /* Make sure form buttons stay full-width */
