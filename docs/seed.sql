@@ -13,9 +13,9 @@ INSERT INTO students (student_number, first_name, last_name, course, year_level)
   ('2023300002', 'Jose',    'Reyes',    'BSCS', 3),
   ('2023300003', 'Ana',     'Cruz',     'BSCE', 1),
   ('2023300004', 'Pedro',   'Garcia',   'BSIT', 4),
-  ('2023300005', 'Luz',     'Bautista', 'BSN',  2),
+  ('2023300005', 'Luz',     'Bautista', 'BSEE', 2),
   ('2023300006', 'Miguel',  'Torres',   'BSME', 3),
-  ('2023300007', 'Elena',   'Aquino',   'BSBA', 1),
+  ('2023300007', 'Elena',   'Aquino',   'BSEd', 1),
   ('2023300008', 'Carlos',  'Ramirez',  'BSIT', 2),
   ('2023300009', 'Sofia',   'Castillo', 'BSCS', 4),
   ('2023300010', 'Roberto', 'Mendoza',  'BSCE', 3);

@@ -62,140 +62,161 @@
     <div class="dashboard-grid">
       <!-- REGISTRATION FORM -->
       <section class="section-card" id="registration" aria-labelledby="form-heading">
-      <div class="section-header">
-        <h2 id="form-heading" class="section-title">
-          <span class="section-icon">📋</span>
-          <span id="form-title-label">Student Registration</span>
-        </h2>
-        <span id="form-edit-icon" class="form-edit-icon" hidden aria-hidden="true">✏️</span>
-        <button class="btn btn-ghost" id="cancel-edit-btn" style="display:none;" type="button">✕ Cancel Edit</button>
-      </div>
-
-      <form id="student-form" class="student-form" novalidate>
-        <input type="hidden" id="student-id" value="" />
-
-        <div class="form-grid">
-          <div class="form-group">
-            <label for="student-number" class="form-label">Student Number <span class="required">*</span></label>
-            <input type="text" id="student-number" name="student_number" class="form-input"
-              placeholder="e.g. 2023300845" maxlength="10" inputmode="numeric" required />
-            <span class="field-error" id="err-student-number"></span>
-          </div>
-
-          <div class="form-group">
-            <label for="first-name" class="form-label">First Name <span class="required">*</span></label>
-            <input type="text" id="first-name" name="first_name" class="form-input" placeholder="e.g. Juan"
-              maxlength="100" required />
-            <span class="field-error" id="err-first-name"></span>
-          </div>
-
-          <div class="form-group">
-            <label for="last-name" class="form-label">Last Name <span class="required">*</span></label>
-            <input type="text" id="last-name" name="last_name" class="form-input" placeholder="e.g. Dela Cruz"
-              maxlength="100" required />
-            <span class="field-error" id="err-last-name"></span>
-          </div>
-
-          <div class="form-group">
-            <label for="course" class="form-label">Course <span class="required">*</span></label>
-            <select id="course" name="course" class="form-input" required>
-              <option value="">— Select Course —</option>
-              <option value="BSIT">BSIT</option>
-              <option value="BSCS">BSCS</option>
-              <option value="BSCE">BSCE</option>
-              <option value="BSEE">BSEE</option>
-              <option value="BSME">BSME</option>
-              <option value="BSN">BSN</option>
-              <option value="BSBA">BSBA</option>
-              <option value="BSED">BSED</option>
-              <option value="AB-COMM">AB-COMM</option>
-            </select>
-            <span class="field-error" id="err-course"></span>
-          </div>
-
-          <div class="form-group">
-            <label for="year-level" class="form-label">Year Level <span class="required">*</span></label>
-            <select id="year-level" name="year_level" class="form-input" required>
-              <option value="">— Select Year —</option>
-              <option value="1">1st Year</option>
-              <option value="2">2nd Year</option>
-              <option value="3">3rd Year</option>
-              <option value="4">4th Year</option>
-              <option value="5">5th Year</option>
-            </select>
-            <span class="field-error" id="err-year-level"></span>
-          </div>
+        <div class="section-header">
+          <h2 id="form-heading" class="section-title">
+            <span class="section-icon">📋</span>
+            <span id="form-title-label">Student Registration</span>
+          </h2>
+          <span id="form-edit-icon" class="form-edit-icon" hidden aria-hidden="true">✏️</span>
+          <button class="btn btn-ghost" id="cancel-edit-btn" style="display:none;" type="button">✕ Cancel Edit</button>
         </div>
 
-        <div class="form-actions">
-          <button type="submit" class="btn btn-primary" id="submit-btn">
-            <span class="btn-icon">＋</span> Register Student
-          </button>
-          <button type="reset" class="btn btn-secondary" id="reset-btn">Reset</button>
-        </div>
+        <form id="student-form" class="student-form" novalidate>
+          <input type="hidden" id="student-id" value="" />
 
-        <div class="form-feedback" id="form-feedback" role="alert" aria-live="polite"></div>
-      </form>
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="student-number" class="form-label">Student Number <span class="required">*</span></label>
+              <input type="text" id="student-number" name="student_number" class="form-input"
+                placeholder="e.g. 2023300845" maxlength="10" inputmode="numeric" required />
+              <span class="field-error" id="err-student-number"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="first-name" class="form-label">First Name <span class="required">*</span></label>
+              <input type="text" id="first-name" name="first_name" class="form-input" placeholder="e.g. Juan"
+                maxlength="100" required />
+              <span class="field-error" id="err-first-name"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="last-name" class="form-label">Last Name <span class="required">*</span></label>
+              <input type="text" id="last-name" name="last_name" class="form-input" placeholder="e.g. Dela Cruz"
+                maxlength="100" required />
+              <span class="field-error" id="err-last-name"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="course" class="form-label">Course <span class="required">*</span></label>
+              <select id="course" name="course" class="form-input" required>
+                <option value="">— Select Course —</option>
+                <optgroup label="Computing &amp; Information Technology">
+                  <option value="BSIT">Bachelor of Science in Information Technology (BSIT)</option>
+                  <option value="BSCS">Bachelor of Science in Computer Science (BSCS)</option>
+                  <option value="BSDS">Bachelor of Science in Data Science (BSDS)</option>
+                </optgroup>
+                <optgroup label="Engineering">
+                  <option value="BSCpE">Bachelor of Science in Computer Engineering (BSCpE)</option>
+                  <option value="BSCE">Bachelor of Science in Civil Engineering (BSCE)</option>
+                  <option value="BSEE">Bachelor of Science in Electrical Engineering (BSEE)</option>
+                  <option value="BSME">Bachelor of Science in Mechanical Engineering (BSME)</option>
+                  <option value="BSECE">Bachelor of Science in Electronics Engineering (BSECE)</option>
+                  <option value="BSArch">Bachelor of Science in Architecture (BSArch)</option>
+                </optgroup>
+                <optgroup label="Technology">
+                  <option value="BSEET">Bachelor of Science in Electronics Technology (BSEET)</option>
+                  <option value="BSEMT">Bachelor of Science in Electro-Mechanical Technology (BSEMT)</option>
+                  <option value="BSMfgET">Bachelor of Science in Manufacturing Engineering Technology (BSMfgET)</option>
+                </optgroup>
+                <optgroup label="Science">
+                  <option value="BSAP">Bachelor of Science in Applied Physics (BSAP)</option>
+                  <option value="BSAM">Bachelor of Science in Applied Mathematics (BSAM)</option>
+                  <option value="BSChem">Bachelor of Science in Chemistry (BSChem)</option>
+                  <option value="BSES">Bachelor of Science in Environmental Science (BSES)</option>
+                </optgroup>
+                <optgroup label="Other Programs">
+                  <option value="BSFT">Bachelor of Science in Food Technology (BSFT)</option>
+                  <option value="BSAuto">Bachelor of Science in Autotronics (BSAuto)</option>
+                  <option value="BSEd">Bachelor of Secondary Education (BSEd)</option>
+                  <option value="COT">Certificate of Teaching (COT)</option>
+                </optgroup>
+              </select>
+              <span class="field-error" id="err-course"></span>
+            </div>
+
+            <div class="form-group">
+              <label for="year-level" class="form-label">Year Level <span class="required">*</span></label>
+              <select id="year-level" name="year_level" class="form-input" required>
+                <option value="">— Select Year —</option>
+                <option value="1">1st Year</option>
+                <option value="2">2nd Year</option>
+                <option value="3">3rd Year</option>
+                <option value="4">4th Year</option>
+                <option value="5">5th Year</option>
+              </select>
+              <span class="field-error" id="err-year-level"></span>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn btn-primary" id="submit-btn">
+              <span class="btn-icon">＋</span> Register Student
+            </button>
+            <button type="reset" class="btn btn-secondary" id="reset-btn">Reset</button>
+          </div>
+
+          <div class="form-feedback" id="form-feedback" role="alert" aria-live="polite"></div>
+        </form>
       </section>
 
       <!-- RECORDS TABLE -->
       <section class="section-card" id="records" aria-labelledby="records-heading">
-      <div class="section-header">
-        <h2 id="records-heading" class="section-title">
-          <span class="section-icon">📊</span> Student Records
-        </h2>
-      </div>
-
-      <!-- TOOLBAR: Search + Filter -->
-      <div class="toolbar">
-        <div class="search-wrapper">
-          <span class="search-icon" aria-hidden="true">🔍</span>
-          <input type="search" id="search-input" class="search-input" placeholder="Search by name, number, or course…"
-            aria-label="Search students" />
-          <button class="btn btn-sm btn-ghost" id="clear-search-btn" title="Clear search" aria-label="Clear search"
-            style="display:none;">✕</button>
+        <div class="section-header">
+          <h2 id="records-heading" class="section-title">
+            <span class="section-icon">📊</span> Student Records
+          </h2>
         </div>
 
-        <div class="filter-wrapper">
-          <label for="filter-course" class="visually-hidden">Filter by Course</label>
-          <select id="filter-course" class="filter-select" aria-label="Filter by course">
-            <option value="all">All Courses</option>
-          </select>
+        <!-- TOOLBAR: Search + Filter -->
+        <div class="toolbar">
+          <div class="search-wrapper">
+            <span class="search-icon" aria-hidden="true">🔍</span>
+            <input type="search" id="search-input" class="search-input" placeholder="Search by name, number, or course…"
+              aria-label="Search students" />
+            <button class="btn btn-sm btn-ghost" id="clear-search-btn" title="Clear search" aria-label="Clear search"
+              style="display:none;">✕</button>
+          </div>
+
+          <div class="filter-wrapper">
+            <label for="filter-course" class="visually-hidden">Filter by Course</label>
+            <select id="filter-course" class="filter-select" aria-label="Filter by course">
+              <option value="all">All Courses</option>
+            </select>
+          </div>
+
+          <button class="btn btn-sm btn-outline" id="refresh-btn" title="Refresh table" aria-label="Refresh records">↻
+            Refresh</button>
         </div>
 
-        <button class="btn btn-sm btn-outline" id="refresh-btn" title="Refresh table" aria-label="Refresh records">↻
-          Refresh</button>
-      </div>
+        <!-- TABLE WRAPPER -->
+        <div class="table-wrapper" role="region" aria-label="Student records table" tabindex="0">
+          <table class="records-table" id="records-table" aria-describedby="table-info">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">St. No.</th>
+                <th scope="col">Full Name</th>
 
-      <!-- TABLE WRAPPER -->
-      <div class="table-wrapper" role="region" aria-label="Student records table" tabindex="0">
-        <table class="records-table" id="records-table" aria-describedby="table-info">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">St. No.</th>
-              <th scope="col">Full Name</th>
+                <th scope="col">Course</th>
+                <th scope="col">Year</th>
+                <th scope="col">Date Added</th>
+                <th scope="col">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="table-body">
+              <tr class="loading-row">
+                <td colspan="7">
+                  <div class="loading-spinner" aria-label="Loading…"></div>
+                  Loading student records…
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-              <th scope="col">Course</th>
-              <th scope="col">Year</th>
-              <th scope="col">Date Added</th>
-              <th scope="col">Actions</th>
-            </tr>
-          </thead>
-          <tbody id="table-body">
-            <tr class="loading-row">
-              <td colspan="7">
-                <div class="loading-spinner" aria-label="Loading…"></div>
-                Loading student records…
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-
-      <div class="table-footer" id="table-footer">
-        <span id="table-info" aria-live="polite"></span>
-      </div>
+        <div class="table-footer" id="table-footer">
+          <span id="table-info" aria-live="polite"></span>
+        </div>
       </section>
     </div>
 
