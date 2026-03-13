@@ -1,15 +1,14 @@
-require('dotenv').config();          // load .env before anything else reads process.env
+require('dotenv').config();          // Load env first
 
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 
-// Only allow requests from the configured origin (defaults to localhost:3000).
-// Set CORS_ORIGIN in .env to override for staging / production deployments.
+// Allow requests from the configured frontend
 const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:3000';
 const corsOptions = {
   origin: CORS_ORIGIN,
-  optionsSuccessStatus: 200   // for legacy browser compatibility
+  optionsSuccessStatus: 200   // Legacy browser fallback
 };
 
 const studentRoutes = require('./routes/students');
@@ -22,13 +21,13 @@ app.use(cors(corsOptions));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Serve static frontend files
+// Serve frontend
 app.use(express.static(path.join(__dirname, 'public')));
 
-// API Routes
+// Student API
 app.use('/api/students', studentRoutes);
 
-// Catch-all: serve index.html for any unmatched route
+// Let the frontend handle unknown routes
 app.get('*', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });

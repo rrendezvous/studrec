@@ -2,16 +2,14 @@ const express = require('express');
 const router = express.Router();
 const db = require('../config/db');
 
-// Pattern: exactly 10 consecutive digits, e.g. 2023300845
+// Student numbers are always 10 digits
 const STUDENT_NUMBER_REGEX = /^\d{10}$/;
 
 function validateStudentNumber(value) {
     return STUDENT_NUMBER_REGEX.test(String(value).trim());
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// Helper: parse & validate numeric IDs from URL params
-// ─────────────────────────────────────────────────────────────────────────────
+// Parse route ids once
 function parseId(req, res) {
     const id = parseInt(req.params.id, 10);
     if (isNaN(id) || id < 1) {
@@ -21,9 +19,7 @@ function parseId(req, res) {
     return id;
 }
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GET /api/students/search/:keyword  – must be defined BEFORE /:id
-// ─────────────────────────────────────────────────────────────────────────────
+// Keep search before /:id
 router.get('/search/:keyword', async (req, res) => {
     try {
         const keyword = `%${req.params.keyword}%`;
@@ -40,9 +36,7 @@ router.get('/search/:keyword', async (req, res) => {
     }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GET /api/students  – fetch all students
-// ─────────────────────────────────────────────────────────────────────────────
+// List students
 router.get('/', async (req, res) => {
     try {
         const [rows] = await db.execute(
@@ -55,9 +49,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// GET /api/students/:id  – fetch single student
-// ─────────────────────────────────────────────────────────────────────────────
+// Get one student
 router.get('/:id', async (req, res) => {
     const id = parseId(req, res);
     if (id === null) return;
@@ -76,13 +68,11 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// POST /api/students  – create new student
-// ─────────────────────────────────────────────────────────────────────────────
+// Create a student
 router.post('/', async (req, res) => {
     const { student_number, first_name, last_name, course, year_level } = req.body;
 
-    // Validation
+    // Required fields
     if (!student_number || !first_name || !last_name || !course || !year_level) {
         return res.status(400).json({
             success: false,
@@ -118,9 +108,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// PUT /api/students/:id  – update student
-// ─────────────────────────────────────────────────────────────────────────────
+// Update a student
 router.put('/:id', async (req, res) => {
     const id = parseId(req, res);
     if (id === null) return;
@@ -168,9 +156,7 @@ router.put('/:id', async (req, res) => {
     }
 });
 
-// ─────────────────────────────────────────────────────────────────────────────
-// DELETE /api/students/:id  – delete student
-// ─────────────────────────────────────────────────────────────────────────────
+// Delete a student
 router.delete('/:id', async (req, res) => {
     const id = parseId(req, res);
     if (id === null) return;

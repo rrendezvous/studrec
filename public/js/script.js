@@ -1,29 +1,24 @@
-/* ============================================================
-   script.js – Student Record Management System
-   IT323 Midterm PIT
-   Pure Vanilla JavaScript – no frameworks
-   ============================================================ */
+/* Frontend student records logic */
 
 'use strict';
 
 const API = '/api/students';
 const PAGE_SIZE = 10;
 
-// Pattern: exactly 10 consecutive digits — e.g. 2023300845
-// Must stay in sync with the backend regex in routes/students.js
+// Keep this in sync with the backend validation
 const STUDENT_NUMBER_REGEX = /^\d{10}$/;
 
-// ── State ────────────────────────────────────────────────────
-let allStudents = [];        // master copy from last full fetch
-let activeStudents = [];     // current display list (search results OR allStudents)
-let filteredStudents = [];   // list after course filter, before pagination slicing
+// App state
+let allStudents = [];        // Last full fetch
+let activeStudents = [];     // Current working list
+let filteredStudents = [];   // Filtered before pagination
 let currentPage = 1;
-let editingId = null;        // id of student being edited (null = add mode)
+let editingId = null;        // Null means add mode
 let searchDebounceTimer = null;
 let pendingDeleteId = null;
 let lastFocusedElement = null;
 
-// ── DOM references ────────────────────────────────────────────
+// DOM refs
 const form = document.getElementById('student-form');
 const hiddenId = document.getElementById('student-id');
 const fStudentNumber = document.getElementById('student-number');
@@ -56,7 +51,7 @@ const confirmStudentName = document.getElementById('confirm-student-name');
 const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
 const confirmDeleteBtn = document.getElementById('confirm-delete-btn');
 
-// ── Utility: Toast ────────────────────────────────────────────
+// Toasts
 function showToast(message, type = 'info') {
     const icons = { success: '✅', error: '❌', info: 'ℹ️', warning: '⚠️' };
     const toast = document.createElement('div');
@@ -71,20 +66,20 @@ function showToast(message, type = 'info') {
     setTimeout(() => toast.remove(), 3200);
 }
 
-// ── Utility: Format date ──────────────────────────────────────
+// Format dates for the table
 function formatDate(raw) {
     if (!raw) return '—';
     const d = new Date(raw);
     return d.toLocaleDateString('en-PH', { year: 'numeric', month: 'short', day: '2-digit' });
 }
 
-// ── Utility: Year ordinal ─────────────────────────────────────
+// Format year level labels
 function yearOrdinal(n) {
     const suffixes = ['', 'st', 'nd', 'rd', 'th', 'th'];
     return `${n}${suffixes[n] || 'th'}`;
 }
 
-// ── Validation ────────────────────────────────────────────────
+// Form validation
 function clearErrors() {
     document.querySelectorAll('.field-error').forEach(el => (el.textContent = ''));
     document.querySelectorAll('.form-input').forEach(el => el.classList.remove('invalid'));
@@ -191,7 +186,7 @@ function validateForm() {
     return valid;
 }
 
-// ── Render Table ──────────────────────────────────────────────
+// Table rendering
 function renderTable(students, startIndex = 0) {
     if (!students || students.length === 0) {
         tableBody.innerHTML = `
@@ -237,7 +232,7 @@ function renderPaginationControls(totalPages) {
     const displayPage = hasPages ? currentPage : 0;
     const pageItems = [];
 
-    // Build compact page windows: 1 ... 4 5 6 ... 20
+    // Keep pagination compact
     if (hasPages) {
         if (totalPages <= 7) {
             for (let p = 1; p <= totalPages; p += 1) pageItems.push(p);
@@ -304,7 +299,7 @@ function goToPage(page) {
     renderCurrentPage();
 }
 
-// ── HTML escape (XSS safety) ──────────────────────────────────
+// Escape user data before rendering
 function escHtml(str) {
     if (!str) return '';
     return String(str)
@@ -315,13 +310,13 @@ function escHtml(str) {
         .replace(/'/g, '&#39;');
 }
 
-// ── Update Stats ──────────────────────────────────────────────
+// Update dashboard stats
 function updateStats(students) {
     const total = students.length;
     const courses = new Set(students.map(s => s.course)).size;
     statNumTotal.textContent = total;
     statNumCourses.textContent = courses;
-    // Update Student Records heading with live count
+    // Keep the heading count in sync
     if (recordsHeading) {
         recordsHeading.innerHTML = '<span class="section-icon">📊</span> Student Records <span class="records-count">' + total + '</span>';
     }
@@ -342,7 +337,7 @@ function updateStats(students) {
                 return a[0].localeCompare(b[0]);
             });
 
-            statPerCourseList.className = 'stat-course-grid'; // Swap class for CSS Grid
+            statPerCourseList.className = 'stat-course-grid'; // Use the grid layout
             statPerCourseList.innerHTML = sortedCourses.map(([course, count]) => {
                 return `<div class="course-stat-badge">
                   <span class="c-name">${escHtml(course)}</span>
@@ -353,7 +348,7 @@ function updateStats(students) {
     }
 }
 
-// ── Populate Course Filter dropdown ──────────────────────────
+// Rebuild the course filter
 function populateCourseFilter(students) {
     const current = filterCourse.value;
     const courses = [...new Set(students.map(s => s.course))].sort();
@@ -361,14 +356,13 @@ function populateCourseFilter(students) {
         courses.map(c => `<option value="${escHtml(c)}" ${c === current ? 'selected' : ''}>${escHtml(c)}</option>`).join('');
 }
 
-// ── Apply client-side filter ──────────────────────────────────
-// Filters `activeStudents` so it composes with both full list AND search results.
+// Apply the current filter to whatever list is active
 function applyFilter(resetPage = false) {
     if (resetPage) currentPage = 1;
     renderCurrentPage();
 }
 
-// ── Fetch all students ────────────────────────────────────────
+// Load the full list
 async function fetchAllStudents() {
     try {
         tableBody.innerHTML = `<tr class="loading-row"><td colspan="7"><div class="loading-spinner"></div>Loading…</td></tr>`;
@@ -376,7 +370,7 @@ async function fetchAllStudents() {
         const json = await res.json();
         if (!res.ok) throw new Error(json.message || 'Server error');
         allStudents = json.data || [];
-        activeStudents = [...allStudents];   // reset active list to full set
+        activeStudents = [...allStudents];   // Reset to the full list
         currentPage = 1;
         updateStats(allStudents);
         populateCourseFilter(allStudents);
@@ -390,7 +384,7 @@ async function fetchAllStudents() {
     }
 }
 
-// ── Search (calls API endpoint) ───────────────────────────────
+// Search through the API
 async function searchStudents(keyword) {
     if (!keyword.trim()) {
         clearSearchBtn.style.display = 'none';
@@ -403,17 +397,17 @@ async function searchStudents(keyword) {
         const res = await fetch(`${API}/search/${encodeURIComponent(keyword.trim())}`);
         const json = await res.json();
         if (!res.ok) throw new Error(json.message || 'Search failed');
-        activeStudents = json.data || [];   // update active list to search results
-        filterCourse.value = 'all';        // reset filter so it applies cleanly
+        activeStudents = json.data || [];   // Replace the working list
+        filterCourse.value = 'all';        // Clear filters on a new search
         currentPage = 1;
-        applyFilter(true);                 // filter now works on search results
+        applyFilter(true);
     } catch (err) {
         console.error(err);
         showToast('Search failed: ' + err.message, 'error');
     }
 }
 
-// ── Form population for edit ──────────────────────────────────
+// Fill the form for edits
 function populateFormForEdit(student) {
     editingId = student.id;
     hiddenId.value = student.id;
@@ -429,7 +423,7 @@ function populateFormForEdit(student) {
     clearErrors();
     syncEditUI();
 
-    // Smooth-scroll only when needed; avoid abrupt jumps if form is already visible.
+    // Only scroll if the form is mostly off-screen
     const registrationEl = document.getElementById('registration');
     const stickyHeader = document.querySelector('.site-header');
     if (registrationEl) {
@@ -444,7 +438,7 @@ function populateFormForEdit(student) {
     }
 }
 
-// ── Reset form to add mode ────────────────────────────────────
+// Switch the form back to create mode
 function resetFormToAddMode() {
     editingId = null;
     hiddenId.value = '';
@@ -456,7 +450,7 @@ function resetFormToAddMode() {
     syncEditUI();
 }
 
-// ── Form submit handler ───────────────────────────────────────
+// Submit create/update requests
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
@@ -477,14 +471,14 @@ form.addEventListener('submit', async (e) => {
     try {
         let res, json;
         if (editingId) {
-            // PUT – update
+            // Update existing record
             res = await fetch(`${API}/${editingId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
         } else {
-            // POST – create
+            // Create new record
             res = await fetch(API, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -503,7 +497,7 @@ form.addEventListener('submit', async (e) => {
             formFeedback.className = 'form-feedback success';
             showToast(json.message, 'success');
             resetFormToAddMode();
-            await fetchAllStudents();      // refresh table
+            await fetchAllStudents();      // Refresh the table
         }
     } catch (err) {
         console.error(err);
@@ -518,15 +512,15 @@ form.addEventListener('submit', async (e) => {
     }
 });
 
-// ── Cancel edit ───────────────────────────────────────────────
+// Leave edit mode
 cancelEditBtn.addEventListener('click', resetFormToAddMode);
 
-// ── Form reset clears errors too ──────────────────────────────
+// Native reset should clear validation state too
 form.addEventListener('reset', () => {
     setTimeout(clearErrors, 0);
 });
 
-// ── Event delegation: Edit / Delete on table ──────────────────
+// Handle row actions from one listener
 tableBody.addEventListener('click', async (e) => {
     const btn = e.target.closest('[data-action]');
     if (!btn) return;
@@ -573,7 +567,7 @@ if (confirmModal) {
     });
 }
 
-// ── Search input with debounce ────────────────────────────────
+// Debounced search
 searchInput.addEventListener('input', () => {
     clearTimeout(searchDebounceTimer);
     const val = searchInput.value;
@@ -588,17 +582,17 @@ searchInput.addEventListener('search', () => {
     }
 });
 
-// ── Clear search ──────────────────────────────────────────────
+// Clear the current search
 clearSearchBtn.addEventListener('click', () => {
     searchInput.value = '';
     clearSearchBtn.style.display = 'none';
     fetchAllStudents();
 });
 
-// ── Course filter ─────────────────────────────────────────────
+// Apply the course filter
 filterCourse.addEventListener('change', () => applyFilter(true));
 
-// ── Refresh ───────────────────────────────────────────────────
+// Reload everything from the server
 refreshBtn.addEventListener('click', async () => {
     searchInput.value = '';
     clearSearchBtn.style.display = 'none';
@@ -607,7 +601,7 @@ refreshBtn.addEventListener('click', async () => {
     showToast('Records refreshed.', 'info');
 });
 
-// ── Keyboard shortcut: Escape cancels edit ────────────────────
+// Escape closes the modal or exits edit mode
 document.addEventListener('keydown', (e) => {
     if (e.key !== 'Escape') return;
 
@@ -617,7 +611,7 @@ document.addEventListener('keydown', (e) => {
     }
     if (editingId) resetFormToAddMode();
 });
-// ── Hamburger nav toggle ──────────────────────────────────
+// Mobile nav
 const navToggle = document.getElementById('nav-toggle');
 const navbar = document.querySelector('.navbar');
 
@@ -627,7 +621,7 @@ if (navToggle && navbar) {
         navToggle.setAttribute('aria-expanded', isOpen);
     });
 
-    // Close nav when a link is clicked (smooth UX on mobile)
+    // Close the menu after navigation
     document.querySelectorAll('.nav-link').forEach(link => {
         link.addEventListener('click', () => {
             navbar.classList.remove('nav-open');
@@ -635,7 +629,7 @@ if (navToggle && navbar) {
         });
     });
 
-    // Prevent stale open mobile menu after resizing to desktop widths.
+    // Reset the mobile menu on desktop widths
     window.addEventListener('resize', () => {
         if (window.innerWidth > 768 && navbar.classList.contains('nav-open')) {
             navbar.classList.remove('nav-open');
@@ -644,6 +638,5 @@ if (navToggle && navbar) {
     });
 }
 
-// ── Initial load ──────────────────────────────────────────────
+// Initial load
 fetchAllStudents();
-
