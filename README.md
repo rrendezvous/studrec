@@ -2,7 +2,7 @@
 
 **Course:** IT323 - Information Management  
 **Project:** Midterm PIT  
-**Academic Year:** 2025–2026
+**Academic Year:** 2025-2026
 
 ## Developers
 
