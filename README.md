@@ -1,6 +1,6 @@
 # Student Record Management System
 
-**Course:** IT323 — Information Management  
+**Course:** IT323 - Information Management  
 **Project:** Midterm PIT  
 **Academic Year:** 2025–2026
 
@@ -153,4 +153,4 @@ Includes: ER diagram, API documentation, system architecture, database design ra
 
 ---
 
-*This project was developed for academic purposes as part of IT323 — Information Management, Midterm PIT.*
+*This project was developed for academic purposes as part of IT323 - Information Management, Midterm PIT.*
