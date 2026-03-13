@@ -1419,14 +1419,33 @@ body.modal-open {
   flex-wrap: wrap;
 }
 
+.footer-meta {
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  min-width: 0;
+}
+
 .footer-copy {
   font-size: .78rem;
   color: var(--clr-text-muted);
+  line-height: 1.35;
+}
+
+/* Muted attribution keeps the dashboard-focused footer hierarchy intact. */
+.footer-attribution {
+  font-size: .72rem;
+  color: var(--clr-text-muted);
+  opacity: .7;
+  line-height: 1.35;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 .footer-tech {
   font-size: .72rem;
   color: var(--clr-text-dim);
+  line-height: 1.35;
 }
 
 /* ============================================================
@@ -1771,6 +1790,10 @@ body.modal-open {
     align-items: center;
     text-align: center;
     gap: .375rem;
+  }
+
+  .footer-meta {
+    align-items: center;
   }
 }
 
