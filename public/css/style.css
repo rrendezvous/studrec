@@ -909,8 +909,16 @@ img {
   color: var(--clr-text);
   font-family: inherit;
   font-size: .875rem;
-  padding: .575rem .875rem .575rem 2.25rem;
+  padding: .575rem 2.5rem .575rem 2.25rem;
   transition: border-color var(--trans-fast), box-shadow var(--trans-fast);
+}
+
+.search-input::-webkit-search-cancel-button,
+.search-input::-webkit-search-decoration,
+.search-input::-webkit-search-results-button,
+.search-input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 .search-input::placeholder {
@@ -1461,6 +1469,10 @@ body.modal-open {
   line-height: 1.35;
 }
 
+.footer-keep {
+  white-space: nowrap;
+}
+
 /* ============================================================
    SCROLLBAR
    ============================================================ */
@@ -1512,6 +1524,28 @@ body.modal-open {
 @media (max-width: 768px) {
 
   /* ── Main layout ─────────────────────────────────────────── */
+  .site-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1000;
+    background: var(--clr-surface);
+  }
+
+  html {
+    scroll-padding-top: calc(var(--nav-h) + 28px);
+  }
+
+  body {
+    padding-top: calc(var(--nav-h) + 12px);
+  }
+
+  #registration,
+  #records {
+    scroll-margin-top: calc(var(--nav-h) + 28px);
+  }
+
   .site-main {
     padding: 1.25rem 1rem 3rem;
     gap: 1rem;
@@ -2002,6 +2036,11 @@ body.modal-open {
 
   .table-footer {
     font-size: .72rem;
+  }
+
+  .footer-copy,
+  .footer-attribution {
+    text-wrap: balance;
   }
 
   .confirm-actions {
